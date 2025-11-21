@@ -1,0 +1,15 @@
+What has keys but no locks? A. Piano B. Door C. Computer D. Treasure|A|0.05
+I speak without a mouth, hear without ears. What am I? A. Echo B. Wind C. Thought D. Phone|A|0.05
+The more you take, the more you leave behind. What am I? A. Footsteps B. Money C. Photos D. Memories|A|0.05
+What has a head and tail but no body? A. Coin B. Snake C. Story D. River|A|0.05
+What gets wet while drying? A. Towel B. Hair C. Clothes D. Dishes|A|0.05
+What has cities but no houses? A. Map B. Country C. Universe D. Computer|A|0.05
+What has hands but can't clap? A. Clock B. Person C. Robot D. Statue|A|0.05
+What can you break without touching it? A. Promise B. Glass C. Heart D. Record|A|0.05
+What goes up but never comes down? A. Age B. Balloon C. Elevator D. Price|A|0.05
+What has a thumb but no fingers? A. Glove B. Hand C. Mitten D. Baseball|A|0.05
+What has an eye but can't see? A. Needle B. Hurricane C. Potato D. Camera|A|0.05
+What has a neck but no head? A. Bottle B. Giraffe C. Shirt D. Person|A|0.05
+What is full of holes but still holds water? A. Sponge B. Net C. Sieve D. Bucket|A|0.05
+What question can you never answer yes to? A. Are you asleep? B. Are you hungry? C. Are you happy? D. Are you here?|A|0.05
+What gets sharper the more you use it? A. Brain B. Knife C. Pencil D. Saw|A|0.05

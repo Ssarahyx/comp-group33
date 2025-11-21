@@ -1,0 +1,15 @@
+What is polymorphism? A. Same interface, different implementations B. Function overloading C. Inheritance only D. Memory management|A|0.25
+Virtual function purpose? A. Can be overridden B. Cannot be overridden C. Static function D. Inline function|A|0.25
+Destructor purpose? A. Clean up resources B. Initialize objects C. Copy objects D. Compare objects|A|0.25
+Multiple inheritance? A. Class from multiple bases B. Multiple derived classes C. Deep inheritance D. Interface only|A|0.25
+Abstract class? A. Has pure virtual functions B. No data members C. Only static functions D. Template class|A|0.25
+Exception handling? A. try-catch B. if-else C. switch-case D. goto|A|0.25
+Smart pointer? A. Auto memory management B. Faster pointer C. Function pointer D. Array pointer|A|0.25
+Vector vs List difference? A. Vector: contiguous, List: linked B. Vector: linked, List: contiguous C. Both arrays D. Both linked|A|0.25
+Copy constructor? A. Initialize from another object B. Copy memory C. Assignment operator D. Move constructor|A|0.25
+RAII meaning? A. Resource Acquisition Is Initialization B. Random Access C. Runtime Allocation D. Resource Allocation|A|0.25
+Template purpose? A. Generic programming B. File template C. Class blueprint D. Function prototype|A|0.25
+Dynamic casting? A. Runtime type conversion B. Compile-time casting C. Static conversion D. Pointer math|A|0.25
+Static vs dynamic polymorphism? A. Static: compile-time, Dynamic: runtime B. Static: runtime, Dynamic: compile-time C. Same thing D. No difference|A|0.25
+Friend function? A. Can access private members B. Public function C. Static function D. Virtual function|A|0.25
+Operator overloading? A. Redefine operators for classes B. Change built-in operators C. Delete operators D. Create new operators|A|0.25

@@ -1,0 +1,15 @@
+Which keyword creates a class? A. class B. struct C. object D. new|A|0.1
+What is the output: cout << 5/2;? A. 2 B. 2.5 C. 3 D. Error|A|0.1
+How to allocate memory? A. malloc B. new C. alloc D. create|B|0.1
+What header for I/O? A. iostream B. stdio.h C. io.h D. input|A|0.1
+Default access in class? A. public B. private C. protected D. package|B|0.1
+Which loop runs at least once? A. for B. while C. do-while D. repeat|C|0.1
+What is function overloading? A. Same name, different params B. Same name, same params C. Different names D. Recursive|A|0.1
+Boolean data type? A. bool B. boolean C. bit D. flag|A|0.1
+Scope resolution operator? A. :: B. : C. -> D. .|A|0.1
+Constant pointer declaration? A. const int* B. int const* C. int* const D. const* int|C|0.1
+Constructor purpose? A. Initialize objects B. Destroy objects C. Copy objects D. Compare|A|0.1
+Invalid variable name? A. _var B. 2var C. var_name D. var123|B|0.1
+OOP meaning? A. Object Oriented Programming B. Object Operation C. Organized Objects D. Operational Program|A|0.1
+Template keyword? A. template B. typename C. class D. generic|A|0.1
+Vector vs Array? A. Vector is dynamic B. Array is dynamic C. Same thing D. Vector is faster|A|0.1
