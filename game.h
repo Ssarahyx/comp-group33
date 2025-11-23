@@ -1,12 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
-
 #include <string>
 #include <vector>
 #include "map.h"
 #include "question.h"
 #include "save.h"
-
+#include "entity.h"
 using namespace std;
 
 // Game state enumeration
@@ -25,6 +24,9 @@ private:
     double currentGPA;
     int currentLevel;
     bool gameRunning;
+    
+    // Game configuration
+    GameConfig gameConfig;
     
     // Player entity
     Entity player;
@@ -47,11 +49,14 @@ private:
     // Set difficulty
     void setDifficulty(int difficultyChoice);
     
+    // Setup game configuration based on difficulty
+    void setupGameConfig();
+    
     // Load level
     void loadLevel(int level);
     
-    // Initialize enemies
-    void initializeEnemies();
+    // Initialize enemies from map
+    void initializeEnemiesFromMap();
     
     // Main game loop
     void gameLoop();
@@ -85,6 +90,9 @@ private:
     
     // Load game
     bool loadGameState();
+    
+    // Adapter function for entity movement system
+    bool isWalkableAdapter(int x, int y);
 
 public:
     // Constructor
