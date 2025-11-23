@@ -1,11 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
+
 #include <string>
 #include <vector>
 #include "map.h"
 #include "question.h"
 #include "save.h"
 #include "entity.h"
+
 using namespace std;
 
 // Game state enumeration
