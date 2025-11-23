@@ -14,13 +14,16 @@ Game::Game() {
     currentLevel = 1;
     currentGPA = 0.0;
     
-    // Initialize player
-    player.x = 0;
-    player.y = 0;
-    player.type = 'P';
+    // Initialize default game config
+    gameConfig = {NORMAL, 0, 0, 0};
     
     // Set default difficulty
     currentDifficulty = normal();
+}
+
+// Walkable adapter for entity system
+bool Game::isWalkableAdapter(int x, int y) {
+    return position_walkable(y, x); // Note: entity uses (x,y) but map uses (row,col)
 }
 
 // Run game
@@ -112,19 +115,48 @@ void Game::setDifficulty(int difficultyChoice) {
     switch (difficultyChoice) {
         case 1:
             currentDifficulty = easy();
+            gameConfig.level = EASY;
             break;
         case 2:
             currentDifficulty = normal();
+            gameConfig.level = NORMAL;
             break;
         case 3:
             currentDifficulty = hard();
+            gameConfig.level = HARD;
             break;
         default:
             cout << "Invalid choice, using Normal difficulty" << endl;
             currentDifficulty = normal();
+            gameConfig.level = NORMAL;
             break;
     }
     currentGPA = currentDifficulty.initialGPA;
+    
+    // Setup game configuration based on difficulty
+    setupGameConfig();
+}
+
+// Setup game configuration
+void Game::setupGameConfig() {
+    // Set enemy counts based on difficulty
+    switch (gameConfig.level) {
+        case EASY:
+            gameConfig.taCount = 2;
+            gameConfig.professorCount = 1;
+            gameConfig.studentCount = 3;
+            break;
+        case NORMAL:
+            gameConfig.taCount = 3;
+            gameConfig.professorCount = 2;
+            gameConfig.studentCount = 4;
+            break;
+        case HARD:
+            gameConfig.taCount = 4;
+            gameConfig.professorCount = 3;
+            gameConfig.studentCount = 5;
+            break;
+    }
 }
 
 // Initialize game
@@ -145,37 +177,34 @@ void Game::loadLevel(int level) {
     cout << "==================================" << endl;
     
     // Call B module's map loading function
-    int difficultyValue = 1; // Default Normal
-    if (currentDifficulty.name == "EASY") difficultyValue = 1;
-    else if (currentDifficulty.name == "NORMAL") difficultyValue = 2;
-    else if (currentDifficulty.name == "HARD") difficultyValue = 3;
-    
+    int difficultyValue = static_cast<int>(gameConfig.level);
     load_map(difficultyValue, level);
     
-    // Set player starting position
-    player.x = map_player_start_row;
-    player.y = map_player_start_col;
+    // Initialize player using entity system
+    player = initPlayer(map_player_start_col, map_player_start_row);
     
-    // Initialize enemies
-    initializeEnemies();
+    // Initialize enemies from map
+    initializeEnemiesFromMap();
     
     cout << "Level " << level << " loaded successfully!" << endl;
     cout << "Objective: Find the exit (E) and escape!" << endl;
 }
 
-// Initialize enemies
-void Game::initializeEnemies() {
+// Initialize enemies from map
+void Game::initializeEnemiesFromMap() {
     enemies.clear();
     
-    // Scan map to find all enemies
+    // Scan map to find all enemies and create entities
     for (int row = 0; row < map_rows; ++row) {
         for (int col = 0; col < map_cols; ++col) {
             char cell = get_map_char_at(row, col);
             if (cell == 'T' || cell == 'F' || cell == 'S') {
                 Entity enemy;
-                enemy.x = row;
-                enemy.y = col;
+                enemy.x = col;  // Note: entity uses x for column
+                enemy.y = row;  // Note: entity uses y for row
                 enemy.type = cell;
+                enemy.active = true;
+                enemy.id = enemies.size() + 1;
                 enemies.push_back(enemy);
             }
         }
@@ -191,7 +220,7 @@ void Game::gameLoop() {
         playerTurn();
         
         // Check if reached exit
-        if (at_exit_position(player.x, player.y)) {
+        if (at_exit_position(player.y, player.x)) { // Note: player.y is row, player.x is col
             cout << "\nCongratulations! You found the exit!" << endl;
             currentState = GameState::LEVEL_COMPLETE;
             continue;
@@ -218,26 +247,15 @@ void Game::playerTurn() {
         return;
     }
     
-    int newX = player.x;
-    int newY = player.y;
+    // Use entity system for player movement
+    bool moved = movePlayer(player, input, 
+                           [this](int x, int y) { return this->isWalkableAdapter(x, y); },
+                           map_cols, map_rows);
     
-    switch (input) {
-        case 'W': newX--; break;
-        case 'S': newX++; break;
-        case 'A': newY--; break;
-        case 'D': newY++; break;
-        default:
-            cout << "Invalid direction! Use W/A/S/D or S to save game" << endl;
-            return;
-    }
-    
-    // Check if movement is possible
-    if (position_walkable(newX, newY)) {
-        player.x = newX;
-        player.y = newY;
+    if (moved) {
         cout << "Movement successful! New position: (" << player.x << ", " << player.y << ")" << endl;
     } else {
-        cout << "Cannot move in that direction! There is an obstacle." << endl;
+        cout << "Cannot move in that direction! There is an obstacle or invalid direction." << endl;
     }
 }
 
@@ -245,44 +263,21 @@ void Game::playerTurn() {
 void Game::enemyTurn() {
     cout << "\nEnemy turn..." << endl;
     
-    // Simple enemy movement logic
-    for (auto& enemy : enemies) {
-        // Simple movement: 50% chance to move toward player
-        if (rand() % 2 == 0) {
-            int deltaX = 0, deltaY = 0;
-            
-            if (enemy.x < player.x) deltaX = 1;
-            else if (enemy.x > player.x) deltaX = -1;
-            
-            if (enemy.y < player.y) deltaY = 1;
-            else if (enemy.y > player.y) deltaY = -1;
-            
-            // Randomly choose to move in X or Y direction
-            if (rand() % 2 == 0 && deltaX != 0) {
-                int newX = enemy.x + deltaX;
-                if (position_walkable(newX, enemy.y)) {
-                    enemy.x = newX;
-                }
-            } else if (deltaY != 0) {
-                int newY = enemy.y + deltaY;
-                if (position_walkable(enemy.x, newY)) {
-                    enemy.y = newY;
-                }
-            }
-        }
-    }
+    // Use entity system for enemy movement
+    moveEnemies(enemies, player,
+               [this](int x, int y) { return this->isWalkableAdapter(x, y); },
+               map_cols, map_rows);
     
     cout << "Enemy movement completed" << endl;
 }
 
 // Check encounters
 void Game::checkEncounters() {
-    // Check if player overlaps with any enemy
-    for (const auto& enemy : enemies) {
-        if (enemy.x == player.x && enemy.y == player.y) {
-            handleQuestion(enemy.type);
-            break; // Only handle one encounter at a time
-        }
+    // Use entity system for collision detection
+    Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+    
+    if (collidedEnemy != nullptr) {
+        handleQuestion(collidedEnemy->type);
     }
 }
 
@@ -306,6 +301,13 @@ void Game::handleQuestion(char enemyType) {
     
     if (penalty > 0) {
         updateGPA(-penalty);
+    } else {
+        // If answer is correct, deactivate the enemy
+        Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+        if (collidedEnemy != nullptr) {
+            deactivateEnemy(*collidedEnemy);
+            cout << "Enemy deactivated! You can pass through." << endl;
+        }
     }
 }
 
@@ -334,8 +336,16 @@ void Game::displayGameInfo() {
     cout << "Difficulty: " << currentDifficulty.name << " | GPA: " << currentGPA << endl;
     cout << "Player position: (" << player.x << ", " << player.y << ")" << endl;
     
+    // Convert entities for map display
+    vector<Entity> activeEnemies;
+    for (const auto& enemy : enemies) {
+        if (enemy.active) {
+            activeEnemies.push_back(enemy);
+        }
+    }
+    
     // Call B module to display map
-    print_map(player.x, player.y, enemies);
+    print_map(player.y, player.x, activeEnemies); // Note: map uses (row,col) = (y,x)
     
     cout << "Symbols: P=Player, T=TA, F=Professor, S=Student, #=Wall, .=Empty, E=Exit" << endl;
 }
@@ -367,13 +377,15 @@ bool Game::loadGameState() {
         enemies = loadedEnemies;
         currentDifficulty = loadedDifficulty;
         
-        // Reload map
-        int difficultyValue = 1;
-        if (currentDifficulty.name == "EASY") difficultyValue = 1;
-        else if (currentDifficulty.name == "NORMAL") difficultyValue = 2;
-        else if (currentDifficulty.name == "HARD") difficultyValue = 3;
+        // Update game config based on loaded difficulty
+        gameConfig.level = static_cast<DifficultyLevel>(
+            currentDifficulty.name == "EASY" ? 1 :
+            currentDifficulty.name == "NORMAL" ? 2 : 3
+        );
+        setupGameConfig();
         
-        load_map(difficultyValue, currentLevel);
+        // Reload map
+        load_map(static_cast<int>(gameConfig.level), currentLevel);
         
         cout << "Game loaded successfully!" << endl;
         return true;
