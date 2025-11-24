@@ -14,17 +14,7 @@ struct GameConfig {
     int taCount;
     int professorCount; 
     int studentCount;
-};  // Fixed: added missing semicolon
-
-// Entity structure definition (assuming it's defined elsewhere, likely in save.h)
-// If not, you need to add it here:
-struct Entity {
-    int x;
-    int y;
-    char type;
-    bool active;
-    int id;
-};
+};  
 
 // Initialize player
 Entity initPlayer(int startX, int startY);
