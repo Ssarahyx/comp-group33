@@ -246,6 +246,9 @@ double ask(char enemyType, const set_difficulty& difficulty) {
     string playerAnswer;
     bool validInput = false;
     
+    // Clear any leftover characters in the input buffer
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
     // Keep asking until we get valid input
     while (!validInput) {
         cout << "Your answer (enter A/B/C/D): ";
@@ -260,7 +263,6 @@ double ask(char enemyType, const set_difficulty& difficulty) {
              toupper(playerAnswer[0]) == 'D')) {
             validInput = true;
         } else {
-            
             if (!playerAnswer.empty()) {
                 cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
             }
