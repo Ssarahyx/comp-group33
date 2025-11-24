@@ -55,7 +55,7 @@ vector<Entity> initEnemies(const GameConfig& config) {
 
 // 玩家移动（使用B模块的isWalkable检测）
 bool movePlayer(Entity& player, char direction, 
-                bool (*isWalkable)(int, int),
+                function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
     
     int newX = player.x;
@@ -87,7 +87,7 @@ bool movePlayer(Entity& player, char direction,
 
 // 敌人移动
 void moveEnemies(vector<Entity>& enemies, const Entity& player,
-                bool (*isWalkable)(int, int),
+                function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
     
     static bool seeded = false;
