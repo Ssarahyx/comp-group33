@@ -246,7 +246,8 @@ double ask(char enemyType, const set_difficulty& difficulty) {
     string playerAnswer;
     bool validInput = false;
     
-    // Clear any leftover characters in the input buffer
+    // Clear the input buffer before asking for answer
+    cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
     // Keep asking until we get valid input
@@ -263,9 +264,11 @@ double ask(char enemyType, const set_difficulty& difficulty) {
              toupper(playerAnswer[0]) == 'D')) {
             validInput = true;
         } else {
+            // 只有在玩家实际输入了无效答案时才显示错误信息
             if (!playerAnswer.empty()) {
                 cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
             }
+            // 如果输入为空（可能是之前的换行符），不清除错误信息，直接继续循环
         }
     }
 
