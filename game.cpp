@@ -1,166 +1,564 @@
-#ifndef GAME_H
-#define GAME_H
+#include "game.h"
+#include <iostream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 #include <vector>
-#include <functional>
-#include "map.h"
-#include "question.h"
-#include "save.h"
-#include "entity.h"
 
 using namespace std;
 
 /**
- * @brief Enumeration representing the different states of the game
+ * @brief Constructs a new Game object and initializes all systems
+ * 
+ * Sets up random number generation, initial game state, default difficulty,
+ * and prepares the game for the main menu.
  */
-enum class GameState {
-    MAIN_MENU,      ///< Displaying the main menu
-    PLAYING,        ///< Actively playing a level
-    LEVEL_COMPLETE, ///< Completed a level, ready for next
-    GAME_OVER,      ///< Game ended due to failure
-    VICTORY         ///< Game completed successfully
-};
+Game::Game() {
+    srand(time(0)); // Initialize random seed for game events
+    currentState = GameState::MAIN_MENU;
+    gameRunning = true;
+    currentLevel = 1;
+    currentGPA = 0.0;
+    gameConfig = {2, 0, 0, 0}; // Default to NORMAL difficulty (level 2)
+    currentDifficulty = normal(); // Set default difficulty settings
+}
 
 /**
- * @brief Main game controller class that manages the entire game flow
+ * @brief Adapter function to convert between entity and map coordinate systems
  * 
- * This class integrates all modules (map, entity, question, save systems)
- * and controls the game from start to finish through 3 levels with
- * difficulty-based progression and GPA management.
+ * The entity system uses (x,y) where x is horizontal, y is vertical.
+ * The map system uses (row,col) where row is vertical, col is horizontal.
+ * This function translates between these coordinate systems.
+ * 
+ * @param x X-coordinate from entity system (horizontal position)
+ * @param y Y-coordinate from entity system (vertical position)
+ * @return True if the position is walkable, false if blocked by wall
  */
-class Game {
-private:
-    GameDifficultySettings currentDifficulty; ///< Current difficulty settings
-    GameState currentState;                   ///< Current state of the game
-    double currentGPA;                        ///< Player's current GPA value
-    int currentLevel;                         ///< Current level (1-3)
-    bool gameRunning;                         ///< Flag indicating if game is active
-    
-    GameConfig gameConfig;                    ///< Configuration for current game
-    Entity player;                            ///< Player entity with position and status
-    vector<Entity> enemies;                   ///< List of all enemy entities in current level
-    
-    // Core game flow methods
-    
-    /**
-     * @brief Initializes the game with default settings
-     */
-    void initializeGame();
-    
-    /**
-     * @brief Displays the main menu interface
-     */
-    void showMainMenu();
-    
-    /**
-     * @brief Handles user input from the main menu
-     */
-    void handleMenuInput();
-    
-    /**
-     * @brief Shows difficulty selection screen and processes choice
-     */
-    void selectDifficulty();
-    
-    /**
-     * @brief Sets game difficulty based on user selection
-     * @param difficultyChoice User's difficulty selection (1-3)
-     */
-    void setDifficulty(int difficultyChoice);
-    
-    /**
-     * @brief Configures game parameters based on selected difficulty
-     */
-    void setupGameConfig();
-    
-    /**
-     * @brief Loads and prepares the specified level
-     * @param level Level number to load (1-3)
-     */
-    void loadLevel(int level);
-    
-    /**
-     * @brief Initializes enemies by scanning the loaded map
-     */
-    void initializeEnemiesFromMap();
-    
-    /**
-     * @brief Main game loop for active gameplay
-     */
-    void gameLoop();
-    
-    /**
-     * @brief Processes player's turn including movement and actions
-     */
-    void playerTurn();
-    
-    /**
-     * @brief Processes all enemy movements and AI behavior
-     */
-    void enemyTurn();
-    
-    /**
-     * @brief Checks if player has encountered any enemies
-     */
-    void checkEncounters();
-    
-    /**
-     * @brief Handles question/answer sequence when encountering enemies
-     * @param enemyType Type of enemy encountered ('T', 'F', or 'S')
-     */
-    void handleQuestion(char enemyType);
-    
-    /**
-     * @brief Updates player's GPA with specified change
-     * @param change Amount to change GPA by (positive or negative)
-     */
-    void updateGPA(double change);
-    
-    /**
-     * @brief Checks if game should end due to victory or failure
-     */
-    void checkGameState();
-    
-    /**
-     * @brief Displays current game status including map and stats
-     */
-    void displayGameInfo();
-    
-    /**
-     * @brief Handles game completion (both victory and failure)
-     * @param victory True if player won, false if game over
-     */
-    void gameOver(bool victory);
-    
-    /**
-     * @brief Saves current game state to file
-     */
-    void saveGameState();
-    
-    /**
-     * @brief Loads game state from saved file
-     * @return True if load successful, false otherwise
-     */
-    bool loadGameState();
-    
-    /**
-     * @brief Adapter function to bridge entity system with map system
-     * @param x X-coordinate (entity system)
-     * @param y Y-coordinate (entity system)
-     * @return True if position is walkable
-     */
-    bool isWalkableAdapter(int x, int y);
+bool Game::isWalkableAdapter(int x, int y) {
+    return position_walkable(y, x); // Convert (x,y) to (row,col) for map system
+}
 
-public:
-    /**
-     * @brief Constructs a new Game object with default initialization
-     */
-    Game();
-    
-    /**
-     * @brief Main entry point that runs the complete game from start to finish
-     */
-    void run();
-};
+/**
+ * @brief Main game execution loop that manages state transitions
+ * 
+ * Continuously runs the game, transitioning between different states
+ * (menu, gameplay, level completion, game over, victory) until the
+ * player chooses to exit the game.
+ */
+void Game::run() {
+    while (gameRunning) {
+        switch (currentState) {
+            case GameState::MAIN_MENU:
+                showMainMenu();
+                handleMenuInput();
+                break;
+            case GameState::PLAYING:
+                gameLoop();
+                break;
+            case GameState::LEVEL_COMPLETE:
+                if (currentLevel < 3) {
+                    currentLevel++;
+                    loadLevel(currentLevel);
+                    currentState = GameState::PLAYING;
+                } else {
+                    gameOver(true); // Player completed all 3 levels
+                }
+                break;
+            case GameState::GAME_OVER:
+                gameOver(false);
+                break;
+            case GameState::VICTORY:
+                gameOver(true);
+                break;
+        }
+    }
+}
 
-#endif
+/**
+ * @brief Displays the main menu with game options
+ * 
+ * Presents the game title and available options to the player:
+ * 1. Start New Game
+ * 2. Load Game
+ * 3. Exit Game
+ */
+void Game::showMainMenu() {
+    cout << "\n==================================" << endl;
+    cout << "        HKU GPA Escape           " << endl;
+    cout << "==================================" << endl;
+    cout << "  Escape Academic Zombies!       " << endl;
+    cout << "==================================" << endl;
+    cout << "1. Start New Game" << endl;
+    cout << "2. Load Game" << endl;
+    cout << "3. Exit Game" << endl;
+    cout << "Enter choice (1-3): ";
+}
+
+/**
+ * @brief Processes user input from the main menu
+ * 
+ * Reads player's menu selection and transitions to the appropriate
+ * game state or exits the application.
+ */
+void Game::handleMenuInput() {
+    int choice;
+    cin >> choice;
+    
+    switch (choice) {
+        case 1:
+            selectDifficulty();
+            break;
+        case 2:
+            if (loadGameState()) {
+                currentState = GameState::PLAYING;
+            }
+            break;
+        case 3:
+            gameRunning = false;
+            break;
+        default:
+            cout << "Invalid choice, please try again!" << endl;
+            break;
+    }
+}
+
+/**
+ * @brief Displays difficulty selection screen and processes choice
+ * 
+ * Presents three difficulty options with their starting GPA values:
+ * - Easy: 4.0 GPA
+ * - Normal: 3.5 GPA  
+ * - Hard: 3.0 GPA
+ * 
+ * After selection, initializes the game with chosen difficulty.
+ */
+void Game::selectDifficulty() {
+    cout << "\n==================================" << endl;
+    cout << "        Select Difficulty        " << endl;
+    cout << "==================================" << endl;
+    cout << "1. Easy   (Initial GPA: 4.0)" << endl;
+    cout << "2. Normal (Initial GPA: 3.5)" << endl;
+    cout << "3. Hard   (Initial GPA: 3.0)" << endl;
+    cout << "Enter difficulty (1-3): ";
+    
+    int choice;
+    cin >> choice;
+    setDifficulty(choice);
+    cout << "\nDifficulty set! Starting game..." << endl;
+    initializeGame();
+}
+
+/**
+ * @brief Configures game settings based on selected difficulty
+ * 
+ * @param difficultyChoice Integer representing difficulty (1=Easy, 2=Normal, 3=Hard)
+ */
+void Game::setDifficulty(int difficultyChoice) {
+    switch (difficultyChoice) {
+        case 1:
+            currentDifficulty = easy();
+            gameConfig.level = 1; // EASY
+            break;
+        case 2:
+            currentDifficulty = normal();
+            gameConfig.level = 2; // NORMAL
+            break;
+        case 3:
+            currentDifficulty = hard();
+            gameConfig.level = 3; // HARD
+            break;
+        default:
+            cout << "Invalid choice, using Normal difficulty" << endl;
+            currentDifficulty = normal();
+            gameConfig.level = 2; // NORMAL
+            break;
+    }
+    currentGPA = currentDifficulty.initialGPA;
+    setupGameConfig();
+}
+
+/**
+ * @brief Configures enemy counts based on selected difficulty
+ * 
+ * Sets the number of each enemy type (TA, Professor, Student)
+ * according to the chosen difficulty level to provide appropriate
+ * challenge scaling.
+ */
+void Game::setupGameConfig() {
+    switch (gameConfig.level) {
+        case 1: // EASY - Fewer challenging enemies
+            gameConfig.taCount = 2;
+            gameConfig.professorCount = 1;
+            gameConfig.studentCount = 3;
+            break;
+        case 2: // NORMAL - Balanced enemy distribution
+            gameConfig.taCount = 3;
+            gameConfig.professorCount = 2;
+            gameConfig.studentCount = 4;
+            break;
+        case 3: // HARD - More challenging enemies
+            gameConfig.taCount = 4;
+            gameConfig.professorCount = 3;
+            gameConfig.studentCount = 5;
+            break;
+    }
+}
+
+/**
+ * @brief Initializes all game systems for a new game
+ * 
+ * Loads question databases, randomizes question order,
+ * and starts the first level of the game.
+ */
+void Game::initializeGame() {
+    // Initialize question system with all question files
+    load_All_Qs();
+    initQsRandom();
+    
+    currentLevel = 1;
+    loadLevel(currentLevel);
+    currentState = GameState::PLAYING;
+}
+
+/**
+ * @brief Loads and prepares the specified level for gameplay
+ * 
+ * @param level The level number to load (1, 2, or 3)
+ * 
+ * Loads the appropriate map based on difficulty and level,
+ * places the player at the starting position, and scans the
+ * map to initialize all enemy entities.
+ */
+void Game::loadLevel(int level) {
+    cout << "\n==================================" << endl;
+    cout << "        Entering Level " << level << "         " << endl;
+    cout << "==================================" << endl;
+    
+    // Load map with current difficulty and level
+    load_map(gameConfig.level, level);
+    
+    // Initialize player at the map's starting position
+    player = initPlayer(map_player_start_col, map_player_start_row);
+    
+    // Scan map and initialize all enemy entities
+    initializeEnemiesFromMap();
+    
+    cout << "Level " << level << " loaded successfully!" << endl;
+    cout << "Objective: Find the exit (E) and escape!" << endl;
+}
+
+/**
+ * @brief Scans the loaded map to find and initialize all enemies
+ * 
+ * Iterates through every position in the map to locate enemy
+ * characters ('T', 'F', 'S') and creates corresponding entity
+ * objects with proper positions and attributes.
+ */
+void Game::initializeEnemiesFromMap() {
+    enemies.clear();
+    
+    // Scan entire map for enemy characters
+    for (int row = 0; row < map_rows; ++row) {
+        for (int col = 0; col < map_cols; ++col) {
+            char cell = get_map_char_at(row, col);
+            if (cell == 'T' || cell == 'F' || cell == 'S') {
+                Entity enemy;
+                enemy.x = col;      // Entity system: x = column
+                enemy.y = row;      // Entity system: y = row
+                enemy.type = cell;
+                enemy.active = true;
+                enemy.id = enemies.size() + 1;
+                enemies.push_back(enemy);
+            }
+        }
+    }
+    
+    cout << "This level has " << enemies.size() << " enemies" << endl;
+}
+
+/**
+ * @brief Main gameplay loop for active level progression
+ * 
+ * Repeatedly cycles through displaying game info, processing
+ * player turns, enemy turns, and checking game state until
+ * the level is completed or the game ends.
+ */
+void Game::gameLoop() {
+    while (currentState == GameState::PLAYING) {
+        displayGameInfo();
+        playerTurn();
+        
+        // Check if player reached the exit
+        if (at_exit_position(player.y, player.x)) {
+            cout << "\nCongratulations! You found the exit!" << endl;
+            currentState = GameState::LEVEL_COMPLETE;
+            continue;
+        }
+        
+        enemyTurn();
+        checkEncounters();
+        checkGameState();
+    }
+}
+
+/**
+ * @brief Processes the player's turn including movement and actions
+ * 
+ * Accepts player input for movement (WASD) or game saving (S).
+ * Validates movement against map boundaries and obstacles,
+ * and updates player position if movement is valid.
+ */
+void Game::playerTurn() {
+    cout << "\nYour turn - Enter movement direction (W/A/S/D) or S to save game: ";
+    char input;
+    cin >> input;
+    input = toupper(input);
+    
+    // Check for save game command
+    if (input == 'S') {
+        saveGameState();
+        return;
+    }
+    
+    // Process movement using entity system
+    bool moved = movePlayer(player, input, 
+                           [this](int x, int y) { return this->isWalkableAdapter(x, y); },
+                           map_cols, map_rows);
+    
+    if (moved) {
+        cout << "Movement successful! New position: (" << player.x << ", " << player.y << ")" << endl;
+    } else {
+        cout << "Cannot move in that direction! There is an obstacle or invalid direction." << endl;
+    }
+}
+
+/**
+ * @brief Processes all enemy movements for the current turn
+ * 
+ * Applies enemy AI behaviors based on enemy type:
+ * - TAs: 65% chance to track player, 35% random movement
+ * - Professors: Always track player directly
+ * - Students: Always move randomly
+ * 
+ * Validates movements against map boundaries and obstacles.
+ */
+void Game::enemyTurn() {
+    cout << "\nEnemy turn..." << endl;
+    
+    // Process all enemy movements using entity system
+    moveEnemies(enemies, player,
+               [this](int x, int y) { return this->isWalkableAdapter(x, y); },
+               map_cols, map_rows);
+    
+    cout << "Enemy movement completed" << endl;
+}
+
+/**
+ * @brief Checks if player has collided with any active enemies
+ * 
+ * Uses the entity system's collision detection to determine
+ * if the player occupies the same position as any active enemy.
+ * If collision detected, initiates question/answer sequence.
+ */
+void Game::checkEncounters() {
+    Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+    if (collidedEnemy != nullptr) {
+        handleQuestion(collidedEnemy->type);
+    }
+}
+
+/**
+ * @brief Handles the question/answer sequence when encountering enemies
+ * 
+ * @param enemyType Type of enemy encountered ('T', 'F', or 'S')
+ * 
+ * Retrieves an appropriate question based on enemy type and difficulty,
+ * evaluates the player's answer, and applies GPA penalties for incorrect
+ * answers. Deactivates enemy if answer is correct.
+ */
+void Game::handleQuestion(char enemyType) {
+    // Prepare difficulty settings for question system
+    set_difficulty qsDiff;
+    qsDiff.initialGPA = currentDifficulty.initialGPA;
+    
+    // Set penalty multipliers based on enemy type
+    if (enemyType == 'T') {
+        qsDiff.ta_penalty_k = currentDifficulty.ta_k;
+    } else if (enemyType == 'F') {
+        qsDiff.prof_penalty_k = currentDifficulty.prof_k;
+    } else if (enemyType == 'S') {
+        qsDiff.stu_penalty_k = currentDifficulty.stu_k;
+    }
+    
+    // Present question and get result
+    double penalty = ask(enemyType, qsDiff);
+    
+    if (penalty > 0) {
+        // Apply GPA penalty for incorrect answer
+        updateGPA(-penalty);
+    } else {
+        // Correct answer - deactivate the enemy
+        Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+        if (collidedEnemy != nullptr) {
+            deactivateEnemy(*collidedEnemy);
+            cout << "Enemy deactivated! You can pass through." << endl;
+        }
+    }
+}
+
+/**
+ * @brief Updates the player's GPA with the specified change
+ * 
+ * @param change Amount to change GPA by (positive or negative)
+ * 
+ * Applies the change to current GPA, ensures GPA doesn't go below zero,
+ * and displays the result to the player.
+ */
+void Game::updateGPA(double change) {
+    currentGPA += change;
+    if (currentGPA < 0) currentGPA = 0;
+    cout << "GPA " << (change > 0 ? "increased" : "decreased") << " by " << abs(change) << endl;
+    cout << "Current GPA: " << currentGPA << endl;
+}
+
+/**
+ * @brief Checks if game should end due to GPA depletion
+ * 
+ * Transitions to GAME_OVER state if player's GPA has reached zero,
+ * ending the game due to academic failure.
+ */
+void Game::checkGameState() {
+    if (currentGPA <= 0) {
+        currentState = GameState::GAME_OVER;
+    }
+}
+
+/**
+ * @brief Displays current game status including map and statistics
+ * 
+ * Shows current level, difficulty, GPA, player position, and the
+ * complete game map with all entities, walls, and the exit.
+ */
+void Game::displayGameInfo() {
+    cout << "\n==================================" << endl;
+    cout << "       Level " << currentLevel << " - Game Status       " << endl;
+    cout << "==================================" << endl;
+    
+    cout << "Difficulty: " << currentDifficulty.name << " | GPA: " << currentGPA << endl;
+    cout << "Player position: (" << player.x << ", " << player.y << ")" << endl;
+    
+    // Prepare active enemies for map display
+    vector<Entity> activeEnemies;
+    for (const auto& enemy : enemies) {
+        if (enemy.active) {
+            activeEnemies.push_back(enemy);
+        }
+    }
+    
+    // Display map with current positions
+    print_map(player.y, player.x, activeEnemies);
+    
+    cout << "Symbols: P=Player, T=TA, F=Professor, S=Student, #=Wall, .=Empty, E=Exit" << endl;
+}
+
+/**
+ * @brief Saves the current game state to a file
+ * 
+ * Captures all current game data including level, GPA, player state,
+ * enemy states, and difficulty settings, then writes them to a
+ * save file for later restoration.
+ */
+void Game::saveGameState() {
+    bool success = saveGame(currentLevel, currentGPA, player, enemies, currentDifficulty);
+    if (success) {
+        cout << "Game saved successfully!" << endl;
+    } else {
+        cout << "Game save failed!" << endl;
+    }
+}
+
+/**
+ * @brief Loads a previously saved game state from file
+ * 
+ * @return True if load was successful, false if file missing or corrupted
+ * 
+ * Restores all game data from save file including level progression,
+ * GPA, entity positions, and difficulty settings, then resumes gameplay
+ * from the saved state.
+ */
+bool Game::loadGameState() {
+    int loadedLevel;
+    double loadedGPA;
+    Entity loadedPlayer;
+    vector<Entity> loadedEnemies;
+    GameDifficultySettings loadedDifficulty;
+    
+    bool success = loadGame(loadedLevel, loadedGPA, loadedPlayer, loadedEnemies, loadedDifficulty);
+    
+    if (success) {
+        // Restore all game state from loaded data
+        currentLevel = loadedLevel;
+        currentGPA = loadedGPA;
+        player = loadedPlayer;
+        enemies = loadedEnemies;
+        currentDifficulty = loadedDifficulty;
+        
+        // Update game configuration based on loaded difficulty
+        if (currentDifficulty.name == "EASY") {
+            gameConfig.level = 1;
+        } else if (currentDifficulty.name == "NORMAL") {
+            gameConfig.level = 2;
+        } else if (currentDifficulty.name == "HARD") {
+            gameConfig.level = 3;
+        }
+        setupGameConfig();
+        
+        // Reload the appropriate map
+        load_map(gameConfig.level, currentLevel);
+        
+        cout << "Game loaded successfully!" << endl;
+        return true;
+    } else {
+        cout << "Game load failed!" << endl;
+        return false;
+    }
+}
+
+/**
+ * @brief Handles game completion (both victory and failure states)
+ * 
+ * @param victory True if player successfully completed the game,
+ *                false if game ended due to failure
+ * 
+ * Displays appropriate ending message based on outcome, frees
+ * map resources, and offers options to return to main menu or exit.
+ */
+void Game::gameOver(bool victory) {
+    cout << "\n==================================" << endl;
+    if (victory) {
+        cout << "          VICTORY!              " << endl;
+        cout << "You successfully escaped the building!" << endl;
+        cout << "Final GPA: " << currentGPA << endl;
+    } else {
+        cout << "          GAME OVER             " << endl;
+        cout << "GPA dropped to zero, academic failure..." << endl;
+    }
+    cout << "==================================" << endl;
+    
+    // Free dynamically allocated map memory
+    free_map();
+    
+    // Offer post-game options
+    cout << "\n1. Return to Main Menu" << endl;
+    cout << "2. Exit Game" << endl;
+    cout << "Enter choice (1-2): ";
+    
+    int choice;
+    cin >> choice;
+    
+    if (choice == 1) {
+        currentState = GameState::MAIN_MENU;
+    } else {
+        gameRunning = false;
+    }
+}
