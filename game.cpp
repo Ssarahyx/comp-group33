@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
+
 using namespace std;
 
 /**
@@ -337,18 +338,18 @@ void Game::gameLoop() {
 /**
  * @brief Processes the player's turn including movement and actions
  * 
- * Accepts player input for movement (WASD) or game saving (S).
+ * Accepts player input for movement (WASD) or game saving (P).
  * Validates movement against map boundaries and obstacles,
  * and updates player position if movement is valid.
  */
 void Game::playerTurn() {
-    cout << "\nYour turn - Enter movement direction (W/A/S/D) or S to save game: ";
+    cout << "\nYour turn - Enter movement direction (W/A/S/D) or P to save game: ";
     char input;
     cin >> input;
     input = toupper(input);
     
     // Check for save game command
-    if (input == 'S') {
+    if (input == 'P') {  // Changed from 'S' to 'P' to avoid conflict with downward movement
         saveGameState();
         return;
     }
