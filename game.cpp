@@ -285,6 +285,18 @@ void Game::initializeEnemiesFromMap() {
 void Game::gameLoop() {
     while (currentState == GameState::PLAYING) {
         displayGameInfo();
+        
+        // Check if player is already colliding with an enemy before moving
+        Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+        if (collidedEnemy != nullptr) {
+            handleQuestion(collidedEnemy->type);
+            // After handling question, check if game should end
+            if (currentGPA <= 0) {
+                currentState = GameState::GAME_OVER;
+                continue;
+            }
+        }
+        
         playerTurn();
         
         // Check if player reached the exit
@@ -294,8 +306,30 @@ void Game::gameLoop() {
             continue;
         }
         
+        // Check for collisions after player move
+        collidedEnemy = checkPlayerCollision(player, enemies);
+        if (collidedEnemy != nullptr) {
+            handleQuestion(collidedEnemy->type);
+            // After handling question, check if game should end
+            if (currentGPA <= 0) {
+                currentState = GameState::GAME_OVER;
+                continue;
+            }
+        }
+        
         enemyTurn();
-        checkEncounters();
+        
+        // Check for collisions after enemy move
+        collidedEnemy = checkPlayerCollision(player, enemies);
+        if (collidedEnemy != nullptr) {
+            handleQuestion(collidedEnemy->type);
+            // After handling question, check if game should end
+            if (currentGPA <= 0) {
+                currentState = GameState::GAME_OVER;
+                continue;
+            }
+        }
+        
         checkGameState();
     }
 }
@@ -350,20 +384,6 @@ void Game::enemyTurn() {
                map_cols, map_rows);
     
     cout << "Enemy movement completed" << endl;
-}
-
-/**
- * @brief Checks if player has collided with any active enemies
- * 
- * Uses the entity system's collision detection to determine
- * if the player occupies the same position as any active enemy.
- * If collision detected, initiates question/answer sequence.
- */
-void Game::checkEncounters() {
-    Entity* collidedEnemy = checkPlayerCollision(player, enemies);
-    if (collidedEnemy != nullptr) {
-        handleQuestion(collidedEnemy->type);
-    }
 }
 
 /**
