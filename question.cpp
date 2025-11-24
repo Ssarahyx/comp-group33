@@ -241,29 +241,26 @@ double ask(char enemyType, const set_difficulty& difficulty) {
     // Present question and get player input
     cout << "\n=== " << enemyName << " Encounter! ===" << endl;
     cout << selectedQuestion.questionText << endl;
-    cout << "Your answer (enter A/B/C/D): ";
     
     string playerAnswer;
-    getline(cin, playerAnswer);
-    playerAnswer = trim(playerAnswer);
+    bool validInput = false;
+    
+    // Keep asking until we get valid input
+    while (!validInput) {
+        cout << "Your answer (enter A/B/C/D): ";
+        getline(cin, playerAnswer);
+        playerAnswer = trim(playerAnswer);
 
-    // Validate input format
-    if (playerAnswer.length() != 1 || (toupper(playerAnswer[0]) != 'A' && toupper(playerAnswer[0]) != 'B' && toupper(playerAnswer[0]) != 'C' && toupper(playerAnswer[0]) != 'D')) {
-        cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
-        cout << "The correct answer is: " << selectedQuestion.answer << endl;
-
-        // Calculate penalty with difficulty multiplier
-        double actualPenalty = basePenalty;
-        if (enemyType == 'T') {
-            actualPenalty *= difficulty.ta_penalty_k;
-        } else if (enemyType == 'F') {
-            actualPenalty *= difficulty.prof_penalty_k;
-        } else if (enemyType == 'S') {
-            actualPenalty *= difficulty.stu_penalty_k;
+        // Validate input format
+        if (playerAnswer.length() == 1 && 
+            (toupper(playerAnswer[0]) == 'A' || 
+             toupper(playerAnswer[0]) == 'B' || 
+             toupper(playerAnswer[0]) == 'C' || 
+             toupper(playerAnswer[0]) == 'D')) {
+            validInput = true;
+        } else {
+            cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
         }
-        
-        cout << "You lost " << actualPenalty << " GPA!" << endl;
-        return actualPenalty;
     }
 
     // Evaluate answer
@@ -274,8 +271,9 @@ double ask(char enemyType, const set_difficulty& difficulty) {
         cout << "✓ Correct! Well done!" << endl;
         return 0.0;
     } else {
-        double actualPenalty = basePenalty; // Apply penalty with difficulty multiplier
+        double actualPenalty = basePenalty;
         
+        // Apply penalty with difficulty multiplier
         if (enemyType == 'T') {
             actualPenalty *= difficulty.ta_penalty_k;
         } else if (enemyType == 'F') {
@@ -290,4 +288,3 @@ double ask(char enemyType, const set_difficulty& difficulty) {
         return actualPenalty;
     }
 }
-
