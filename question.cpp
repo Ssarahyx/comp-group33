@@ -6,6 +6,7 @@
 #include <ctime>
 #include <cctype>
 #include <algorithm>
+#include <limits>
 using namespace std;
 
 // Global vectors storing questions for different enemy types
@@ -259,7 +260,10 @@ double ask(char enemyType, const set_difficulty& difficulty) {
              toupper(playerAnswer[0]) == 'D')) {
             validInput = true;
         } else {
-            cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
+            
+            if (!playerAnswer.empty()) {
+                cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
+            }
         }
     }
 
