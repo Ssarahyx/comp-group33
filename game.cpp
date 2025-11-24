@@ -400,6 +400,9 @@ void Game::enemyTurn() {
  * answers. Deactivates enemy if answer is correct.
  */
 void Game::handleQuestion(char enemyType) {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
     // Prepare difficulty settings for question system
     set_difficulty qsDiff;
     qsDiff.initialGPA = currentDifficulty.initialGPA;
@@ -428,7 +431,6 @@ void Game::handleQuestion(char enemyType) {
         }
     }
 }
-
 /**
  * @brief Updates the player's GPA with the specified change
  * 
