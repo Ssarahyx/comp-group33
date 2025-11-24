@@ -348,6 +348,9 @@ void Game::playerTurn() {
     cin >> input;
     input = toupper(input);
     
+    // Clear the input buffer after reading the movement direction
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
     // Check for save game command
     if (input == 'P') {  // Changed from 'S' to 'P' to avoid conflict with downward movement
         saveGameState();
