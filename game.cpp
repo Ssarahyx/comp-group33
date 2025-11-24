@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
-
 using namespace std;
 
 /**
@@ -378,7 +377,7 @@ void Game::checkEncounters() {
  */
 void Game::handleQuestion(char enemyType) {
     // Prepare difficulty settings for question system
-    set_difficulty qsDiff;
+    QuestionDifficultySettings qsDiff;
     qsDiff.initialGPA = currentDifficulty.initialGPA;
     
     // Set penalty multipliers based on enemy type
