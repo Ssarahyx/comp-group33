@@ -7,7 +7,7 @@
 
 using namespace std;
 
-// 初始化玩家
+// Initialize player
 Entity initPlayer(int startX, int startY) {
     Entity player;
     player.x = startX;
@@ -18,12 +18,12 @@ Entity initPlayer(int startX, int startY) {
     return player;
 }
 
-// 初始化敌人（根据难度）
+// Initialize enemies based on difficulty
 vector<Entity> initEnemies(const GameConfig& config) {
     vector<Entity> enemies;
     int nextId = 1;
     
-    // 创建TA
+    // Create TAs
     for (int i = 0; i < config.taCount; i++) {
         Entity ta;
         ta.type = 'T';
@@ -32,7 +32,7 @@ vector<Entity> initEnemies(const GameConfig& config) {
         enemies.push_back(ta);
     }
     
-    // 创建教授
+    // Create Professors
     for (int i = 0; i < config.professorCount; i++) {
         Entity professor;
         professor.type = 'F';
@@ -41,7 +41,7 @@ vector<Entity> initEnemies(const GameConfig& config) {
         enemies.push_back(professor);
     }
     
-    // 创建学生
+    // Create Students
     for (int i = 0; i < config.studentCount; i++) {
         Entity student;
         student.type = 'S';
@@ -53,7 +53,7 @@ vector<Entity> initEnemies(const GameConfig& config) {
     return enemies;
 }
 
-// 玩家移动（使用B模块的isWalkable检测）
+// Player movement (using isWalkable detection from Module B)
 bool movePlayer(Entity& player, char direction, 
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
@@ -61,21 +61,21 @@ bool movePlayer(Entity& player, char direction,
     int newX = player.x;
     int newY = player.y;
     
-    // 根据输入计算新位置
+    // Calculate new position based on input
     switch (direction) {
-        case 'w': case 'W': newY--; break;  // 上
-        case 's': case 'S': newY++; break;  // 下  
-        case 'a': case 'A': newX--; break;  // 左
-        case 'd': case 'D': newX++; break;  // 右
-        default: return false;  // 无效输入
+        case 'w': case 'W': newY--; break;  // Up
+        case 's': case 'S': newY++; break;  // Down
+        case 'a': case 'A': newX--; break;  // Left
+        case 'd': case 'D': newX++; break;  // Right
+        default: return false;  // Invalid input
     }
     
-    // 检查边界
+    // Check boundaries
     if (newX < 0 || newX >= mapWidth || newY < 0 || newY >= mapHeight) {
         return false;
     }
     
-    // 使用B模块的isWalkable检测是否可走
+    // Use Module B's isWalkable to check if position is walkable
     if (isWalkable(newX, newY)) {
         player.x = newX;
         player.y = newY;
@@ -85,7 +85,7 @@ bool movePlayer(Entity& player, char direction,
     return false;
 }
 
-// 敌人移动
+// Enemy movement
 void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
@@ -102,42 +102,42 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
         int newX = enemy.x;
         int newY = enemy.y;
         
-        // 根据敌人类型选择不同行为
+        // Different behaviors based on enemy type
         switch (enemy.type) {
-            case 'T': // TA - 65%概率追踪玩家，35%概率随机移动
+            case 'T': // TA - 65% chance to chase player, 35% random movement
               {
                     int randomChoice = rand() % 100;
                     
-                    if (randomChoice < 65) {  // 65%概率追踪玩家
-                        // 计算与玩家的方向
+                    if (randomChoice < 65) {  // 65% chance to chase player
+                        // Calculate direction to player
                         int dx = player.x - enemy.x;
                         int dy = player.y - enemy.y;
                         
-                        // 优先移动能减少距离的方向
+                        // Prioritize moving in direction that reduces distance the most
                         if (abs(dx) > abs(dy)) {
                             newX += (dx > 0) ? 1 : -1;
                         } else {
                             newY += (dy > 0) ? 1 : -1;
                         }
-                    } else {  // 35%概率随机移动
+                    } else {  // 35% chance for random movement
                         int direction = rand() % 4;
                         switch (direction) {
-                            case 0: newY--; break;  // 上
-                            case 1: newY++; break;  // 下
-                            case 2: newX--; break;  // 左
-                            case 3: newX++; break;  // 右
+                            case 0: newY--; break;  // Up
+                            case 1: newY++; break;  // Down
+                            case 2: newX--; break;  // Left
+                            case 3: newX++; break;  // Right
                         }
                     }
                 }
                 break;
                 
-            case 'F':  // 教授 - 100%追踪玩家
+            case 'F':  // Professor - 100% chase player
                 {
-                    // 计算与玩家的方向
+                    // Calculate direction to player
                     int dx = player.x - enemy.x;
                     int dy = player.y - enemy.y;
                     
-                    // 优先移动能减少距离的方向
+                    // Prioritize moving in direction that reduces distance the most
                     if (abs(dx) > abs(dy)) {
                         newX += (dx > 0) ? 1 : -1;
                     } else {
@@ -146,20 +146,20 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 }
                 break;
                 
-            case 'S':  // 同学 - 随机移动（满足随机事件要求）
+            case 'S':  // Student - Random movement (satisfies random event requirement)
                 {
                     int direction = rand() % 4;
                     switch (direction) {
-                        case 0: newY--; break;  // 上
-                        case 1: newY++; break;  // 下
-                        case 2: newX--; break;  // 左
-                        case 3: newX++; break;  // 右
+                        case 0: newY--; break;  // Up
+                        case 1: newY++; break;  // Down
+                        case 2: newX--; break;  // Left
+                        case 3: newX++; break;  // Right
                     }
                 }
                 break;
         }
         
-        // 检查边界和可走性
+        // Check boundaries and walkability
         if (newX >= 0 && newX < mapWidth && 
             newY >= 0 && newY < mapHeight && 
             isWalkable(newX, newY)) {
@@ -169,7 +169,7 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
     }
 }
 
-// 碰撞检测
+// Collision detection
 bool isCollide(const Entity& entity1, const Entity& entity2) {
     return (entity1.x == entity2.x && 
             entity1.y == entity2.y && 
@@ -177,7 +177,7 @@ bool isCollide(const Entity& entity1, const Entity& entity2) {
             entity2.active);
 }
 
-// 检查玩家是否与任何敌人碰撞
+// Check if player collides with any enemy
 Entity* checkPlayerCollision(const Entity& player, vector<Entity>& enemies) {
     for (auto& enemy : enemies) {
         if (isCollide(player, enemy)) {
@@ -187,18 +187,18 @@ Entity* checkPlayerCollision(const Entity& player, vector<Entity>& enemies) {
     return nullptr;
 }
 
-// 使敌人消失（答对时调用）
+// Deactivate enemy (called when answer is correct)
 void deactivateEnemy(Entity& enemy) {
     enemy.active = false;
 }
 
-// 获取实体类型名称
+// Get entity type name
 string getEntityTypeName(char type) {
     switch (type) {
-        case 'P': return "玩家";
+        case 'P': return "Player";
         case 'T': return "TA";
-        case 'F': return "教授";
-        case 'S': return "学生";
-        default: return "未知";
+        case 'F': return "Professor";
+        case 'S': return "Student";
+        default: return "Unknown";
     }
 }
