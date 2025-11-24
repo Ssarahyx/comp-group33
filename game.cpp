@@ -377,7 +377,7 @@ void Game::checkEncounters() {
  */
 void Game::handleQuestion(char enemyType) {
     // Prepare difficulty settings for question system
-    QuestionDifficultySettings qsDiff;
+    set_difficulty qsDiff;
     qsDiff.initialGPA = currentDifficulty.initialGPA;
     
     // Set penalty multipliers based on enemy type
