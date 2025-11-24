@@ -243,40 +243,32 @@ double ask(char enemyType, const set_difficulty& difficulty) {
     cout << "\n=== " << enemyName << " Encounter! ===" << endl;
     cout << selectedQuestion.questionText << endl;
     
-    string playerAnswer;
+    char playerAnswer;
     bool validInput = false;
     
-    // Clear the input buffer before asking for answer
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-    // Keep asking until we get valid input
+    // 使用更直接的方法处理输入
     while (!validInput) {
         cout << "Your answer (enter A/B/C/D): ";
-        getline(cin, playerAnswer);
-        playerAnswer = trim(playerAnswer);
-
+        cin >> playerAnswer;
+        
+        // 清除输入缓冲区中的任何剩余字符（包括换行符）
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
+        playerAnswer = toupper(playerAnswer);
+        
         // Validate input format
-        if (playerAnswer.length() == 1 && 
-            (toupper(playerAnswer[0]) == 'A' || 
-             toupper(playerAnswer[0]) == 'B' || 
-             toupper(playerAnswer[0]) == 'C' || 
-             toupper(playerAnswer[0]) == 'D')) {
+        if (playerAnswer == 'A' || playerAnswer == 'B' || 
+            playerAnswer == 'C' || playerAnswer == 'D') {
             validInput = true;
         } else {
-            // 只有在玩家实际输入了无效答案时才显示错误信息
-            if (!playerAnswer.empty()) {
-                cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
-            }
-            // 如果输入为空（可能是之前的换行符），不清除错误信息，直接继续循环
+            cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
         }
     }
 
     // Evaluate answer
-    char playerChar = toupper(playerAnswer[0]);
     char correctChar = toupper(selectedQuestion.answer[0]);
     
-    if (playerChar == correctChar) {
+    if (playerAnswer == correctChar) {
         cout << "✓ Correct! Well done!" << endl;
         return 0.0;
     } else {
