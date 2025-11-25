@@ -8,15 +8,6 @@
 
 using namespace std;
 
-// Entity structure definition
-struct Entity {
-    int x;
-    int y;
-    char type;
-    bool active;
-    int id;
-};
-
 // Game configuration
 struct GameConfig {
     int level;
