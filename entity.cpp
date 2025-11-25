@@ -41,7 +41,7 @@ vector<Entity> initEnemies(const GameConfig& config) {
         enemies.push_back(professor);
     }
     
-    // Create Students
+    // Create Students - increased count based on difficulty
     for (int i = 0; i < config.studentCount; i++) {
         Entity student;
         student.type = 'S';
@@ -67,11 +67,14 @@ bool movePlayer(Entity& player, char direction,
         case 's': case 'S': newY++; break;  // Down
         case 'a': case 'A': newX--; break;  // Left
         case 'd': case 'D': newX++; break;  // Right
-        default: return false;  // Invalid input
+        default: 
+            cout << "Invalid direction! Use W/A/S/D." << endl;
+            return false;  // Invalid input
     }
     
     // Check boundaries
     if (newX < 0 || newX >= mapWidth || newY < 0 || newY >= mapHeight) {
+        cout << "Cannot move outside map boundaries!" << endl;
         return false;
     }
     
@@ -80,9 +83,10 @@ bool movePlayer(Entity& player, char direction,
         player.x = newX;
         player.y = newY;
         return true;
+    } else {
+        cout << "Cannot move there! That position is blocked." << endl;
+        return false;
     }
-    
-    return false;
 }
 
 // Enemy movement
@@ -146,7 +150,7 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 }
                 break;
                 
-            case 'S':  // Student - Random movement (satisfies random event requirement)
+            case 'S':  // Student - Random movement only (no chasing)
                 {
                     int direction = rand() % 4;
                     switch (direction) {
