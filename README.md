@@ -6,7 +6,7 @@ A thrilling terminal-based survival game where you navigate through academic cha
 HKU GPA Escape is a turn-based strategy game where you play as a HKU student trying to escape from a building while avoiding various academic entities. Your goal is to reach the exit on each level while answering questions correctly to maintain your GPA. 🎯🗺️
 
 ## 2️⃣ TEAM MEMBERS🧑‍💻
-Si Xinwei
+Si Xinwei （3036450732）
 
 Wang Xianghe (3036445335)
 
