@@ -94,12 +94,6 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
     
-    static bool seeded = false;
-    if (!seeded) {
-        srand(time(nullptr));
-        seeded = true;
-    }
-    
     for (auto& enemy : enemies) {
         if (!enemy.active) continue;
         
