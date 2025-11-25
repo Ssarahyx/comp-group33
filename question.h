@@ -32,6 +32,11 @@ struct Qs {
     double basePenalty;
 };
 
+// Global vectors storing questions for different enemy types
+extern vector<Qs> taQs;      ///< Questions asked by TAs
+extern vector<Qs> profQs;    ///< Questions asked by Professors 
+extern vector<Qs> stuQs;     ///< Questions asked by Students
+
 // Function declarations
 
 /**
@@ -42,7 +47,8 @@ struct Qs {
 string trim(const string& str);
 
 /**
- * @brief Initializes random question ordering using system time as seed
+ * @brief Initializes random question ordering using modern shuffle algorithm
+ * Uses std::shuffle for proper random distribution instead of unstable sort
  */
 void initQsRandom();
 
