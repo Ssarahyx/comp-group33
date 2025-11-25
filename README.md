@@ -7,6 +7,7 @@ HKU GPA Escape is a turn-based strategy game where you play as a HKU student try
 
 ## 2️⃣ TEAM MEMBERS🧑‍💻
 Si Xinwei
+
 Wang Xianghe (3036445335)
 
 
