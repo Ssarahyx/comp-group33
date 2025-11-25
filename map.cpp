@@ -62,6 +62,20 @@ static void get_map_parameters(int difficulty, int level,
     }
 }
 
+//add_border_walls function sets the outer border cells of the map to walls using "#".
+//The function has no inputs.
+//Output is that the first and last row and column in map_data are all "#"".
+static void add_border_walls() {
+    for (int row = 0; row < map_rows; ++row) {
+        map_data[row][0] = '#';
+        map_data[row][map_cols - 1] = '#';
+    }
+    for (int col = 0; col < map_cols; ++col) {
+        map_data[0][col] = '#';
+        map_data[map_rows - 1][col] = '#';
+    }
+}
+
 //pick_exit_far_from_player function chooses an exit location on the outer border far from the player.
 //Inputs are start_row, start_col, and difficulty.
 //Outputs are exit_row and exit_col, which give the exit position on the border.
@@ -92,7 +106,7 @@ static void pick_exit_far_from_player(int start_row, int start_col, int difficul
 
     int max_distance = 0;
     for (auto& b : border_list) {
-        b.distance = abs(b.row - start_row) + abs(b.col - start_col);
+        b.distance = std::abs(b.row - start_row) + std::abs(b.col - start_col);
         if (b.distance > max_distance) {
             max_distance = b.distance;
         }
@@ -158,22 +172,9 @@ void load_map(int difficulty, int level) {
         }
     }
 
-    for (int row = 0; row < map_rows; ++row) {
-        map_data[row][0] = '#';
-        map_data[row][map_cols - 1] = '#';
-    }
-    for (int col = 0; col < map_cols; ++col) {
-        map_data[0][col] = '#';
-        map_data[map_rows - 1][col] = '#';
-    }
-
-    bool** safe_route = new bool*[map_rows];
-    for (int row = 0; row < map_rows; ++row) {
-        safe_route[row] = new bool[map_cols];
-        for (int col = 0; col < map_cols; ++col) {
-            safe_route[row][col] = false;
-        }
-    }
+    add_border_walls();
+    
+    vector<vector<bool>> safe_route(map_rows, vector<bool>(map_cols, false));
 
     int start_row = 1 + rand() % (map_rows - 2);
     int start_col = 1 + rand() % (map_cols - 2);
@@ -203,26 +204,20 @@ void load_map(int difficulty, int level) {
     int path_row = start_row;
     int path_col = start_col;
 
-    if (path_row != target_row || path_col != target_col) {
-        if (abs(target_row - path_row) >= abs(target_col - path_col)) {
-            if (path_row < target_row) ++path_row;
-            else if (path_row > target_row) --path_row;
+    while (path_row != target_row || path_col != target_col) {
+        safe_route[path_row][path_col] = true;
+        map_data[path_row][path_col] = '.';
+
+        int d_row = target_row - path_row;
+        int d_col = target_col - path_col;
+
+        if (std::abs(d_row) >= std::abs(d_col)) {
+            if (d_row > 0)      ++path_row;
+            else if (d_row < 0) --path_row;
         } else {
-            if (path_col < target_col) ++path_col;
-            else if (path_col > target_col) --path_col;
+            if (d_col > 0)      ++path_col;
+            else if (d_col < 0) --path_col;
         }
-    }
-
-    while (path_row != target_row) {
-        safe_route[path_row][path_col] = true;
-        map_data[path_row][path_col] = '.';
-        path_row += (path_row < target_row ? 1 : -1);
-    }
-
-    while (path_col != target_col) {
-        safe_route[path_row][path_col] = true;
-        map_data[path_row][path_col] = '.';
-        path_col += (path_col < target_col ? 1 : -1);
     }
 
     safe_route[path_row][path_col] = true;
@@ -249,11 +244,6 @@ void load_map(int difficulty, int level) {
             }
         }
     }
-
-    for (int row = 0; row < map_rows; ++row) {
-        delete[] safe_route[row];
-    }
-    delete[] safe_route;
 }
 
 //free_map function frees all memory used by the current map.
