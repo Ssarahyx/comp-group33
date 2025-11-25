@@ -163,12 +163,26 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 break;
         }
         
-        // Check boundaries and walkability
+        // Enhanced position validation - ALLOW moving into player position
         if (newX >= 0 && newX < mapWidth && 
             newY >= 0 && newY < mapHeight && 
             isWalkable(newX, newY)) {
-            enemy.x = newX;
-            enemy.y = newY;
+            
+            // Allow enemies to move into player position (this will trigger collision)
+            // Only check if position is occupied by other enemies, not player
+            bool positionOccupiedByOtherEnemy = false;
+            for (const auto& otherEnemy : enemies) {
+                if (&otherEnemy != &enemy && otherEnemy.active && 
+                    otherEnemy.x == newX && otherEnemy.y == newY) {
+                    positionOccupiedByOtherEnemy = true;
+                    break;
+                }
+            }
+            
+            if (!positionOccupiedByOtherEnemy) {
+                enemy.x = newX;
+                enemy.y = newY;
+            }
         }
     }
 }
