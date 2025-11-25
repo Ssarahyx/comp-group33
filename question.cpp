@@ -7,6 +7,7 @@
 #include <cctype>
 #include <algorithm>
 #include <limits>
+#include <random>  // Added for std::shuffle
 using namespace std;
 
 // Global vectors storing questions for different enemy types
@@ -37,30 +38,23 @@ string trim(const string& str) {
 }
 
 /**
- * @brief Comparison function for random sorting of questions
- * @param a First question to compare
- * @param b Second question to compare
- * @return Random boolean value for shuffle ordering
- */
-bool randomCompare(const Qs& a, const Qs& b) {
-    return rand() % 2 == 0;
-}
-
-/**
  * @brief Initializes random number generator and shuffles question order
- * Uses system time as seed and applies random sort to all question vectors
+ * Uses system time as seed and applies random shuffle to all question vectors
  */
 void initQsRandom() {
-    srand(time(0));
+    // Removed srand(time(0)) - only keep one srand in the entire program
     
+    static std::random_device rd;
+    static std::mt19937 g(rd());
+
     if (!taQs.empty()) {
-        sort(taQs.begin(), taQs.end(), randomCompare);
+        std::shuffle(taQs.begin(), taQs.end(), g);
     }
     if (!profQs.empty()) {
-        sort(profQs.begin(), profQs.end(), randomCompare);
+        std::shuffle(profQs.begin(), profQs.end(), g);
     }
     if (!stuQs.empty()) {
-        sort(stuQs.begin(), stuQs.end(), randomCompare);
+        std::shuffle(stuQs.begin(), stuQs.end(), g);
     }
     
     cout << "Random system initialized." << endl;
