@@ -2,8 +2,15 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <limits>  // Added for numeric_limits
 
 using namespace std;
+
+// External map data variables (need to be declared in your main program)
+extern int map_rows;
+extern int map_cols; 
+extern char** map_data;
+extern void free_map();  // Function to free existing map memory
 
 GameDifficultySettings easy() {
     GameDifficultySettings diff;
@@ -56,6 +63,15 @@ bool saveGame(int level, double gpa, const Entity& player,
         file << enemy.type << " " << enemy.x << " " << enemy.y << " " << enemy.active << " " << enemy.id << endl;
     }
     
+    // Save map data to preserve layout
+    file << "MAP " << map_rows << " " << map_cols << endl;
+    for (int r = 0; r < map_rows; ++r) {
+        for (int c = 0; c < map_cols; ++c) {
+            file << map_data[r][c];
+        }
+        file << '\n';
+    }
+    
     file.close();
     cout << "Game saved successfully to " << filename << endl;
     return true;
@@ -75,6 +91,7 @@ bool loadGame(int& level, double& gpa, Entity& player,
     string line;
     enemies.clear();
     bool success = true;
+    bool mapLoaded = false;
 
     while (getline(file, line) && success) {
         if (line.empty()) continue;
@@ -138,15 +155,56 @@ bool loadGame(int& level, double& gpa, Entity& player,
                     }
                 }
             }
+        } else if (token == "MAP") {
+            int rows, cols;
+            if (!(iss >> rows >> cols)) {
+                cout << "Error reading map dimensions" << endl;
+                success = false;
+            } else {
+                // Clear the old map
+                free_map();
+                
+                // Set new dimensions
+                map_rows = rows;
+                map_cols = cols;
+                
+                // Allocate new map memory
+                map_data = new char*[map_rows];
+                for (int r = 0; r < map_rows; ++r) {
+                    map_data[r] = new char[map_cols];
+                }
+                
+                // Read map data
+                file.ignore(numeric_limits<streamsize>::max(), '\n'); // Skip to next line
+                
+                for (int r = 0; r < map_rows && success; ++r) {
+                    if (!getline(file, line)) {
+                        cout << "Error reading map row " << r << endl;
+                        success = false;
+                    } else {
+                        for (int c = 0; c < map_cols; ++c) {
+                            if (c < (int)line.size()) {
+                                map_data[r][c] = line[c];
+                            } else {
+                                map_data[r][c] = '.'; // Default to empty space
+                            }
+                        }
+                    }
+                }
+                mapLoaded = true;
+            }
         }
     }
 
     file.close();
 
-    if (success) {
+    if (success && mapLoaded) {
         cout << "Game loaded successfully from " << filename << endl;
         return true;
     } else {
+        if (!mapLoaded) {
+            cout << "Error: Map data not found in save file" << endl;
+        }
         cout << "Failed to load game" << endl;
         return false;
     }
