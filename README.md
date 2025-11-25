@@ -3,10 +3,13 @@
 A thrilling terminal-based survival game where you navigate through academic challenges as a HKU student trying to escape a building filled with "academic zombies" while maintaining your GPA! 📚➡️🎓
 
 ## 1️⃣ GAME OVERVIEW
-
 HKU GPA Escape is a turn-based strategy game where you play as a HKU student trying to escape from a building while avoiding various academic entities. Your goal is to reach the exit on each level while answering questions correctly to maintain your GPA. 🎯🗺️
 
-## 2️⃣ GAME FEATURES
+## 2️⃣ TEAM MEMBERS🧑‍💻
+Si Xinwei
+
+
+## 3️⃣ GAME FEATURES
 
 ### 🎚️ 3 DIFFICULTY LEVELS
 Easy, Normal, and Hard with different starting GPAs
@@ -29,7 +32,7 @@ Save your progress and resume later
 ### 🗺️ DYNAMIC MAP GENERATION
 Randomly generated maps for replayability
 
-## 3️⃣ HOW TO PLAY
+## 4️⃣ HOW TO PLAY
 
 ### 🎯 BASIC CONTROLS
 **W/A/S/D** or **↑/↓/←/→** - Move character 🎮
@@ -38,8 +41,6 @@ Randomly generated maps for replayability
 
 **Enter** - Select menu options ✅
 
-**ESC** - Return to main menu 🏠
-
 ### 💡 PRO TIPS
 Plan your route to avoid unnecessary enemy encounters 🗺️
 
@@ -47,7 +48,7 @@ Save frequently to protect your GPA progress 💾
 
 Different enemies require different strategies 🎯
 
-## 4️⃣ ACADEMIC CHALLENGES
+## 5️⃣ ACADEMIC CHALLENGES
 
 ### 👨‍🏫 TA ENEMIES (T)
 Moderate C++ questions with strategic movement 🧠
@@ -64,7 +65,7 @@ Quick riddles with random movement patterns 🎪
 
 Always moves randomly 🎲
 
-## 5️⃣ GPA SYSTEM
+## 6️⃣ GPA SYSTEM
 
 ### 🟢 EASY MODE
 Starting GPA: 4.0 🎓
@@ -80,6 +81,11 @@ Balanced challenges and medium maps
 Starting GPA: 3.0 ⚡
 
 Increased penalties and larger maps
+
+**GPA Rules**
+· GPA decreases when answering incorrectly
+· Correct answers do not increase GPA but remove threats
+· GPA reaching 0.0 results in Game Over
 
 ## 6️⃣ TECHNICAL FEATURES
 
@@ -122,7 +128,14 @@ Complete all 3 levels to win the game! 🏆
 
 ## 8️⃣ INSTALLATION
 
-### 🔧 RUNNING THE GAME
+### 🔧 Build the Game
 ```bash
 make
-./hku_gpa_escape
+This command compiles all source files and generates the executable:
+hku_gpa_escape
+### ▶ Run the Game
+To build (if needed) and run the game in one step:
+make run
+This executes the compiled binary automatically.
+
+
