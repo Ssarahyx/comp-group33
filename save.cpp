@@ -175,7 +175,6 @@ bool loadGame(int& level, double& gpa, Entity& player,
                 }
                 
                 // Read map data
-                file.ignore(numeric_limits<streamsize>::max(), '\n'); // Skip to next line
                 
                 for (int r = 0; r < map_rows && success; ++r) {
                     if (!getline(file, line)) {
