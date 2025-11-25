@@ -10,6 +10,8 @@ Si Xinwei （3036450732）
 
 Wang Xianghe (3036445335)
 
+Tong Bingchen (3036440775)
+
 
 ## 3️⃣ GAME FEATURES
 
