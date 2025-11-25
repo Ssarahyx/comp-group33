@@ -99,11 +99,6 @@ private:
     void enemyTurn();
     
     /**
-     * @brief Checks if player has encountered any enemies
-     */
-    void checkEncounters();
-    
-    /**
      * @brief Handles question/answer sequence when encountering enemies
      * @param enemyType Type of enemy encountered ('T', 'F', or 'S')
      */
