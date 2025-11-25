@@ -41,7 +41,7 @@ vector<Entity> initEnemies(const GameConfig& config) {
         enemies.push_back(professor);
     }
     
-    // Create Students - increased count based on difficulty
+    // Create Students
     for (int i = 0; i < config.studentCount; i++) {
         Entity student;
         student.type = 'S';
