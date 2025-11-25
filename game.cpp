@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
+#include <limits>  // 添加头文件
+#include <cmath>   // 添加头文件
 
 using namespace std;
 
@@ -14,7 +16,7 @@ using namespace std;
  * and prepares the game for the main menu.
  */
 Game::Game() {
-    srand(time(0)); // Initialize random seed for game events
+    srand(time(0)); // Initialize random seed for game events - 保留这一处srand
     currentState = GameState::MAIN_MENU;
     gameRunning = true;
     currentLevel = 1;
@@ -269,6 +271,9 @@ void Game::initializeEnemiesFromMap() {
                 enemy.active = true;
                 enemy.id = enemies.size() + 1;
                 enemies.push_back(enemy);
+                
+                // 关键：清掉地图上的敌人字符，防止"幽灵敌人"
+                map_data[row][col] = '.';
             }
         }
     }
@@ -403,8 +408,8 @@ void Game::handleQuestion(char enemyType) {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
-    // Prepare difficulty settings for question system
-    set_difficulty qsDiff;
+    // Prepare difficulty settings for question system - 修复：正确初始化set_difficulty
+    set_difficulty qsDiff{}; // 先全部清0
     qsDiff.initialGPA = currentDifficulty.initialGPA;
     
     // Set penalty multipliers based on enemy type
@@ -431,6 +436,7 @@ void Game::handleQuestion(char enemyType) {
         }
     }
 }
+
 /**
  * @brief Updates the player's GPA with the specified change
  * 
@@ -442,7 +448,7 @@ void Game::handleQuestion(char enemyType) {
 void Game::updateGPA(double change) {
     currentGPA += change;
     if (currentGPA < 0) currentGPA = 0;
-    cout << "GPA " << (change > 0 ? "increased" : "decreased") << " by " << abs(change) << endl;
+    cout << "GPA " << (change > 0 ? "increased" : "decreased") << " by " << std::fabs(change) << endl; // 使用std::fabs
     cout << "Current GPA: " << currentGPA << endl;
 }
 
@@ -538,8 +544,8 @@ bool Game::loadGameState() {
         }
         setupGameConfig();
         
-        // Reload the appropriate map
-        load_map(gameConfig.level, currentLevel);
+        // 注释掉这一行，不再重新加载地图，因为地图数据已经从存档中恢复
+        // load_map(gameConfig.level, currentLevel);
         
         cout << "Game loaded successfully!" << endl;
         return true;
