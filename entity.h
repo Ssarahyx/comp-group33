@@ -8,14 +8,6 @@
 
 using namespace std;
 
-// Game configuration
-struct GameConfig {
-    int level;
-    int taCount;
-    int professorCount; 
-    int studentCount;
-};  
-
 // Initialize player
 Entity initPlayer(int startX, int startY);
 
