@@ -133,8 +133,10 @@ Complete all 3 levels to win the game! 🏆
 make
 ```
 This command compiles all source files and generates the executable:
+
 ```bash
-hku_gpa_escape```
+hku_gpa_escape
+```
 
 ### ▶ Run the Game
 To build (if needed) and run the game in one step:
