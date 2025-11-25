@@ -306,7 +306,7 @@ void print_map(int player_row, int player_col, const vector<Entity>& enemies) {
             if (!player_here) {
                 for (const auto& e : enemies) {
                     if (!e.active) continue;
-                    if (e.x == row && e.y == col) {
+                    if (e.y == row && e.x == col) {
                         enemy_here = true;
                         enemy_char = e.type;
                         break;
