@@ -55,7 +55,6 @@ GameDifficultySettings easy();
  * 
  * @return GameDifficultySettings Normal difficulty configuration object
  */
-
 GameDifficultySettings normal();
 
 /**
@@ -79,6 +78,7 @@ GameDifficultySettings hard();
  * - Player entity data (position, type, status, ID)
  * - All enemy entities data
  * - Current difficulty settings
+ * - Map layout data (rows, columns, and tile contents)
  * 
  * @param level Current level number to save
  * @param gpa Current GPA value to save
@@ -98,6 +98,7 @@ bool saveGame(int level, double gpa, const Entity& player, const vector<Entity>&
  * - Player entity data (position, type, status, ID)
  * - All enemy entities data
  * - Difficulty settings used in saved game
+ * - Map layout data from saved game
  * 
  * @param level Output parameter for loaded level number
  * @param gpa Output parameter for loaded GPA value
