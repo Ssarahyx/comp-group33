@@ -527,6 +527,9 @@ bool Game::loadGameState() {
     bool success = loadGame(loadedLevel, loadedGPA, loadedPlayer, loadedEnemies, loadedDifficulty);
     
     if (success) {
+        load_All_Qs();
+        initQsRandom();
+        
         // Restore all game state from loaded data
         currentLevel = loadedLevel;
         currentGPA = loadedGPA;
@@ -544,7 +547,6 @@ bool Game::loadGameState() {
         }
         setupGameConfig();
         
-        // 注释掉这一行，不再重新加载地图，因为地图数据已经从存档中恢复
         // load_map(gameConfig.level, currentLevel);
         
         cout << "Game loaded successfully!" << endl;
