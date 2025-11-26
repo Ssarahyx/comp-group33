@@ -12,6 +12,7 @@ Wang Xianghe (3036445335)
 
 Tong Bingchen (3036440775)
 
+Song Yuxuan (3036290792)
 
 ## 3️⃣ GAME FEATURES
 
