@@ -144,10 +144,17 @@ hku_gpa_escape
 ```
 
 ### ▶ Run the Game
-To build (if needed) and run the game in one step:
+You can run the game in two different ways.
+**Method 1**
+Build first, then run manually
+```bash
+make
+./hku_gpa_escape
+```
+**Method 2**
+Compile (if needed) and run in a single step
 ```bash
 make run
 ```
-This executes the compiled binary automatically.
 
 
