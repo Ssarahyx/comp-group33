@@ -8,6 +8,15 @@
 
 using namespace std;
 
+// External functions from map module
+extern bool position_walkable(int row, int col);
+extern bool at_exit_position(int row, int col);
+
+// Check if position is valid for enemy movement
+bool isValidEnemyPosition(int x, int y, function<bool(int, int)> isWalkable) {
+    return isWalkable(x, y) && !at_exit_position(y, x);
+}
+
 // Initialize player at specified position
 Entity initPlayer(int startX, int startY) {
     Entity player;
@@ -24,7 +33,7 @@ Entity initPlayer(int startX, int startY) {
     return player;
 }
 
-// Initialize enemies with behavior modifiers based on difficulty
+// Initialize enemies with behavior modifiers
 vector<Entity> initEnemies(const GameConfig& config) {
     vector<Entity> enemies;
     int nextId = 1;
@@ -71,7 +80,7 @@ vector<Entity> initEnemies(const GameConfig& config) {
     return enemies;
 }
 
-// Move player with direction input and collision checking
+// Move player with direction input
 bool movePlayer(Entity& player, char direction, 
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
@@ -104,7 +113,7 @@ bool movePlayer(Entity& player, char direction,
     }
 }
 
-// Move all enemies based on their type and behavior patterns
+// Move all enemies based on their type
 void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
@@ -134,7 +143,7 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
         
         if (shouldMove && newX >= 0 && newX < mapWidth && 
             newY >= 0 && newY < mapHeight && 
-            isWalkable(newX, newY)) {
+            isValidEnemyPosition(newX, newY, isWalkable)) {
             
             bool positionOccupied = false;
             for (const auto& other : enemies) {
@@ -153,7 +162,7 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
     }
 }
 
-// TA movement with strategic chasing behavior
+// TA movement with strategic chasing
 bool moveTA(Entity& ta, const Entity& player, int& newX, int& newY, int distance) {
     int randomChoice = rand() % 100;
     int dx = player.x - ta.x;
@@ -198,7 +207,7 @@ bool moveTA(Entity& ta, const Entity& player, int& newX, int& newY, int distance
     }
 }
 
-// Professor movement with advanced tracking strategies
+// Professor movement with advanced tracking
 bool moveProfessor(Entity& professor, const Entity& player, int& newX, int& newY, int distance) {
     int randomChoice = rand() % 100;
     int dx = player.x - professor.x;
@@ -246,7 +255,7 @@ bool moveProfessor(Entity& professor, const Entity& player, int& newX, int& newY
     return false;
 }
 
-// Student movement with random and social behaviors
+// Student movement with random behaviors
 bool moveStudent(Entity& student, const Entity& player, int& newX, int& newY, int distance) {
     int randomChoice = rand() % 100;
     
@@ -323,7 +332,7 @@ bool isCollide(const Entity& entity1, const Entity& entity2) {
             entity2.active);
 }
 
-// Check if player collides with any active enemy
+// Check if player collides with any enemy
 Entity* checkPlayerCollision(const Entity& player, vector<Entity>& enemies) {
     for (auto& enemy : enemies) {
         if (isCollide(player, enemy)) {
@@ -349,7 +358,7 @@ string getEntityTypeName(char type) {
     }
 }
 
-// Calculate TA chase probability based on difficulty
+// Calculate TA chase probability
 int calculateTAChaseProbability(int level, int stage, int enemyIndex) {
     int baseProbability = 60;
     if (level == 1) baseProbability += 5;
