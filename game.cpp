@@ -16,7 +16,7 @@ using namespace std;
  * and prepares the game for the main menu.
  */
 Game::Game() {
-    srand(time(0)); // Initialize random seed for game events - 保留这一处srand
+    srand(time(0)); // Initialize random seed for game events
     currentState = GameState::MAIN_MENU;
     gameRunning = true;
     currentLevel = 1;
@@ -292,64 +292,75 @@ void Game::initializeEnemiesFromMap() {
 void Game::gameLoop() {
     while (currentState == GameState::PLAYING) {
         displayGameInfo();
-        
-        Entity* collidedEnemy = checkPlayerCollision(player, enemies);
-        if (collidedEnemy != nullptr) {
-            handleQuestion(collidedEnemy->type);
-            if (currentGPA <= 0) {
-                currentState = GameState::GAME_OVER;
-                continue;
-            }
+
+        {
+            Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+            if (collidedEnemy != nullptr) {
+                handleQuestion(collidedEnemy->type);
+                    
+                if (currentGPA <= 0) {
+                    currentState = GameState::GAME_OVER;
+                    continue;
+                }
+                
+                    continue;
+                }
         }
 
-        bool savedThisTurn = playerTurn();
-        
-        if (savedThisTurn) {
-    
+        bool playerMoved = playerTurn();
+
+        if (!playerMoved) {
             continue;
         }
-
-            if (at_exit_position(player.y, player.x)) {
+    
+        if (at_exit_position(player.y, player.x)) {
             cout << "\nCongratulations! You found the exit!" << endl;
             currentState = GameState::LEVEL_COMPLETE;
             continue;
         }
 
-        collidedEnemy = checkPlayerCollision(player, enemies);
-        if (collidedEnemy != nullptr) {
-            handleQuestion(collidedEnemy->type);
-            if (currentGPA <= 0) {
-                currentState = GameState::GAME_OVER;
-                continue;
+
+        {
+            Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+            if (collidedEnemy != nullptr) {
+                handleQuestion(collidedEnemy->type);
+                
+                if (currentGPA <= 0) {
+                    currentState = GameState::GAME_OVER;
+                    continue;
+                }
             }
         }
 
         enemyTurn();
 
-        collidedEnemy = checkPlayerCollision(player, enemies);
-        if (collidedEnemy != nullptr) {
-            handleQuestion(collidedEnemy->type);
-            if (currentGPA <= 0) {
-                currentState = GameState::GAME_OVER;
-                continue;
+        {
+            Entity* collidedEnemy = checkPlayerCollision(player, enemies);
+            if (collidedEnemy != nullptr) {
+                handleQuestion(collidedEnemy->type);
+                
+                if (currentGPA <= 0) {
+                    currentState = GameState::GAME_OVER;
+                    continue;
+                }
             }
         }
-
         checkGameState();
     }
-}bool Game::playerTurn() {
+}
+
+bool Game::playerTurn() {
     cout << "\nYour turn - Enter movement direction (W/A/S/D) or P to save game: ";
     char input;
     cin >> input;
     input = toupper(input);
 
-    if (input == 'P') {
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        saveGameState();
-        return true;
-    }
-
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (input == 'P') {
+        saveGameState();
+        return false;
+    }
 
     bool moved = movePlayer(player, input,
         [this](int x, int y) { return this->isWalkableAdapter(x, y); },
