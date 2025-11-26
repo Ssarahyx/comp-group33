@@ -4,45 +4,62 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include "save.h" 
+#include "save.h"
 
 using namespace std;
 
-// Game configuration
+// Game configuration structure
 struct GameConfig {
-    int level;
-    int stage; 
+    int level;           // Difficulty level (1-3)
+    int stage;           // Stage (1-3)
     int taCount;
-    int professorCount; 
+    int professorCount;
     int studentCount;
-};  
+};
 
-// Initialize player
+// Initialize player at specified position
 Entity initPlayer(int startX, int startY);
 
-// Initialize enemies based on difficulty
+// Initialize enemies based on difficulty configuration
 vector<Entity> initEnemies(const GameConfig& config);
 
-// Player movement - using isWalkable detection from map.cpp
+// Move player in specified direction with collision checking
 bool movePlayer(Entity& player, char direction, 
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight);
 
-// Enemy movement
+// Move all enemies based on their behavior patterns
 void moveEnemies(vector<Entity>& enemies, const Entity& player,
-                function<bool(int, int)> isWalkable,
-                int mapWidth, int mapHeight);
+                 function<bool(int, int)> isWalkable,
+                 int mapWidth, int mapHeight);
 
-// Collision detection
+// Check if two entities are colliding
 bool isCollide(const Entity& entity1, const Entity& entity2);
 
-// Check if player collides with any enemy
+// Check if player collides with any active enemy
 Entity* checkPlayerCollision(const Entity& player, vector<Entity>& enemies);
 
-// Deactivate enemy (called when answer is correct)
+// Deactivate enemy when question is answered correctly
 void deactivateEnemy(Entity& enemy);
 
-// Utility functions
+// Get readable name for entity type
 string getEntityTypeName(char type);
+
+// Enemy movement helper functions
+bool moveTA(Entity& ta, const Entity& player, int& newX, int& newY, int distance);
+bool moveProfessor(Entity& professor, const Entity& player, int& newX, int& newY, int distance);
+bool moveStudent(Entity& student, const Entity& player, int& newX, int& newY, int distance);
+
+// Behavior calculation functions
+int calculateTAChaseProbability(int level, int stage, int enemyIndex);
+int calculateTADetectionRange(int level, int stage);
+int calculateTAMovementStrategy(int level, int stage, int enemyIndex);
+int calculateProfessorChaseProbability(int level, int stage, int enemyIndex);
+int calculateProfessorDetectionRange(int level, int stage);
+int calculateProfessorMovementStrategy(int level, int stage, int enemyIndex);
+int calculateProfessorPredictiveAbility(int level, int stage);
+int calculateStudentChaseProbability(int level, int stage, int enemyIndex);
+int calculateStudentMovementStrategy(int level, int stage, int enemyIndex);
+int calculateStudentDistraction(int level, int stage);
 
 #endif
