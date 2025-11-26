@@ -207,13 +207,13 @@ bool moveTA(Entity& ta, const Entity& player, int& newX, int& newY, int distance
     }
 }
 
-// Professor movement with advanced tracking
+// Professor movement with advanced tracking - always chase
 bool moveProfessor(Entity& professor, const Entity& player, int& newX, int& newY, int distance) {
-    int randomChoice = rand() % 100;
     int dx = player.x - professor.x;
     int dy = player.y - professor.y;
+
     
-    if (distance <= professor.detectionRange && randomChoice < professor.chaseProbability) {
+    if (distance <= professor.detectionRange) {
         switch (professor.movementStrategy) {
             case 0: 
                 if (abs(dx) > abs(dy)) {
@@ -251,10 +251,12 @@ bool moveProfessor(Entity& professor, const Entity& player, int& newX, int& newY
                 break;
         }
         return true;
+    } else {
+        if (dx != 0) newX += (dx > 0) ? 1 : -1;
+        if (dy != 0) newY += (dy > 0) ? 1 : -1;
+        return true;
     }
-    return false;
 }
-
 // Student movement with random behaviors
 bool moveStudent(Entity& student, const Entity& player, int& newX, int& newY, int distance) {
     int randomChoice = rand() % 100;
