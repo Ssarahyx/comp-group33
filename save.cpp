@@ -15,10 +15,10 @@ extern void free_map();  // Function to free existing map memory
 GameDifficultySettings easy() {
     GameDifficultySettings diff;
     diff.name = "EASY";
-    diff.initialGPA = 4.0;
-    diff.ta_k = 0.8;
-    diff.prof_k = 1.0;
-    diff.stu_k = 0.5;
+    diff.initialGPA = 4.0;   // Highest starting GPA
+    diff.ta_k = 0.8;         // Reduced TA penalty multiplier
+    diff.prof_k = 1.0;       // Standard professor penalty
+    diff.stu_k = 0.5;        // Greatly reduced student penalty
     return diff;
 }
 
@@ -52,12 +52,14 @@ bool saveGame(int level, double gpa, const Entity& player,
         cout << "Error: Cannot create save file: " << filename << endl;
         return false;
     }
-
+    
+    // Save game metadata
     file << "LEVEL " << level << endl;
     file << "GPA " << gpa << endl;
     file << "DIFFICULTY " << diff.name << endl;
     file << "PLAYER " << player.x << " " << player.y << " " << player.type << " " << player.active << " " << player.id << endl;
-
+    
+    // Save enemy data with count
     file << "ENEMIES " << enemies.size() << endl;
     for (const auto& enemy : enemies) {
         file << enemy.type << " " << enemy.x << " " << enemy.y << " " << enemy.active << " " << enemy.id << endl;
@@ -67,9 +69,9 @@ bool saveGame(int level, double gpa, const Entity& player,
     file << "MAP " << map_rows << " " << map_cols << endl;
     for (int r = 0; r < map_rows; ++r) {
         for (int c = 0; c < map_cols; ++c) {
-            file << map_data[r][c];
+            file << map_data[r][c]; // Write each map cell
         }
-        file << '\n';
+        file << '\n'; // Newline after each row
     }
     
     file.close();
@@ -89,16 +91,17 @@ bool loadGame(int& level, double& gpa, Entity& player,
     }
 
     string line;
-    enemies.clear();
+    enemies.clear(); // Clear existing enemies before loading
     bool success = true;
-    bool mapLoaded = false;
+    bool mapLoaded = false; // Flag to ensure map data was loaded
 
+    // Parse each line of the save file
     while (getline(file, line) && success) {
-        if (line.empty()) continue;
+        if (line.empty()) continue; // Skip empty lines
 
         istringstream iss(line);
         string token;
-        iss >> token;
+        iss >> token; // Get the first token to identify data type
 
         if (token == "LEVEL") {
             if (!(iss >> level)) {
@@ -116,6 +119,7 @@ bool loadGame(int& level, double& gpa, Entity& player,
                 cout << "Error reading difficulty" << endl;
                 success = false;
             } else {
+                // Set difficulty based on saved name
                 if (diffName == "EASY") {
                     diff = easy();
                 } else if (diffName == "NORMAL") {
@@ -123,7 +127,7 @@ bool loadGame(int& level, double& gpa, Entity& player,
                 } else if (diffName == "HARD") {
                     diff = hard();
                 } else {
-                    diff = normal();
+                    diff = normal(); // Default to normal if unknown
                 }
             }
         } else if (token == "PLAYER") {
@@ -137,6 +141,7 @@ bool loadGame(int& level, double& gpa, Entity& player,
                 cout << "Error reading enemy count" << endl;
                 success = false;
             } else {
+                // Read each enemy entry
                 for (int i = 0; i < enemyCount && success; i++) {
                     if (!getline(file, line)) {
                         cout << "Error: Expected " << enemyCount << " enemies but got only " << i << endl;
@@ -151,7 +156,7 @@ bool loadGame(int& level, double& gpa, Entity& player,
                             success = false;
                         }
                     } else {
-                        i--;
+                        i--; // Decrement counter if line was empty
                     }
                 }
             }
@@ -161,7 +166,7 @@ bool loadGame(int& level, double& gpa, Entity& player,
                 cout << "Error reading map dimensions" << endl;
                 success = false;
             } else {
-                // Clear the old map
+                // Clear the old map before loading new one
                 free_map();
                 
                 // Set new dimensions
@@ -190,13 +195,14 @@ bool loadGame(int& level, double& gpa, Entity& player,
                         }
                     }
                 }
-                mapLoaded = true;
+                mapLoaded = true; // Mark map as successfully loaded
             }
         }
     }
 
     file.close();
 
+    // Verify successful loading of all required components
     if (success && mapLoaded) {
         cout << "Game loaded successfully from " << filename << endl;
         return true;
