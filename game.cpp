@@ -297,14 +297,13 @@ void Game::gameLoop() {
             Entity* collidedEnemy = checkPlayerCollision(player, enemies);
             if (collidedEnemy != nullptr) {
                 handleQuestion(collidedEnemy->type);
-                    
+                
                 if (currentGPA <= 0) {
                     currentState = GameState::GAME_OVER;
                     continue;
                 }
-                
-                    continue;
-                }
+                continue;
+            }
         }
 
         bool playerMoved = playerTurn();
@@ -312,13 +311,12 @@ void Game::gameLoop() {
         if (!playerMoved) {
             continue;
         }
-    
+        
         if (at_exit_position(player.y, player.x)) {
             cout << "\nCongratulations! You found the exit!" << endl;
             currentState = GameState::LEVEL_COMPLETE;
             continue;
         }
-
 
         {
             Entity* collidedEnemy = checkPlayerCollision(player, enemies);
@@ -329,6 +327,7 @@ void Game::gameLoop() {
                     currentState = GameState::GAME_OVER;
                     continue;
                 }
+                continue;
             }
         }
 
@@ -362,18 +361,24 @@ bool Game::playerTurn() {
         return false;
     }
 
-    bool moved = movePlayer(player, input,
+    bool moved = movePlayer(
+        player,
+        input,
         [this](int x, int y) { return this->isWalkableAdapter(x, y); },
-        map_cols, map_rows);
+        map_cols,
+        map_rows
+    );
 
     if (moved) {
-        cout << "Movement successful! New position: (" << player.x << ", " << player.y << ")" << endl;
+        cout << "Movement successful! New position: (" 
+             << player.x << ", " << player.y << ")" << endl;
+        return true;
     } else {
         cout << "Cannot move in that direction! There is an obstacle or invalid direction." << endl;
+        return false;
     }
-
-    return false;
 }
+
 /**
  * @brief Processes all enemy movements for the current turn
  * 
