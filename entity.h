@@ -11,6 +11,7 @@ using namespace std;
 // Game configuration
 struct GameConfig {
     int level;
+    int stage; 
     int taCount;
     int professorCount; 
     int studentCount;
