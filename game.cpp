@@ -288,92 +288,81 @@ void Game::initializeEnemiesFromMap() {
  * player turns, enemy turns, and checking game state until
  * the level is completed or the game ends.
  */
+
 void Game::gameLoop() {
     while (currentState == GameState::PLAYING) {
         displayGameInfo();
         
-        // Check if player is already colliding with an enemy before moving
         Entity* collidedEnemy = checkPlayerCollision(player, enemies);
         if (collidedEnemy != nullptr) {
             handleQuestion(collidedEnemy->type);
-            // After handling question, check if game should end
             if (currentGPA <= 0) {
                 currentState = GameState::GAME_OVER;
                 continue;
             }
         }
+
+        bool savedThisTurn = playerTurn();
         
-        playerTurn();
-        
-        // Check if player reached the exit
-        if (at_exit_position(player.y, player.x)) {
+        if (savedThisTurn) {
+    
+            continue;
+        }
+
+            if (at_exit_position(player.y, player.x)) {
             cout << "\nCongratulations! You found the exit!" << endl;
             currentState = GameState::LEVEL_COMPLETE;
             continue;
         }
-        
-        // Check for collisions after player move
+
         collidedEnemy = checkPlayerCollision(player, enemies);
         if (collidedEnemy != nullptr) {
             handleQuestion(collidedEnemy->type);
-            // After handling question, check if game should end
             if (currentGPA <= 0) {
                 currentState = GameState::GAME_OVER;
                 continue;
             }
         }
-        
+
         enemyTurn();
-        
-        // Check for collisions after enemy move
+
         collidedEnemy = checkPlayerCollision(player, enemies);
         if (collidedEnemy != nullptr) {
             handleQuestion(collidedEnemy->type);
-            // After handling question, check if game should end
             if (currentGPA <= 0) {
                 currentState = GameState::GAME_OVER;
                 continue;
             }
         }
-        
+
         checkGameState();
     }
-}
-
-/**
- * @brief Processes the player's turn including movement and actions
- * 
- * Accepts player input for movement (WASD) or game saving (P).
- * Validates movement against map boundaries and obstacles,
- * and updates player position if movement is valid.
- */
-void Game::playerTurn() {
+}bool Game::playerTurn() {
     cout << "\nYour turn - Enter movement direction (W/A/S/D) or P to save game: ";
     char input;
     cin >> input;
     input = toupper(input);
-    
-    // Clear the input buffer after reading the movement direction
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-    // Check for save game command
-    if (input == 'P') {  // Changed from 'S' to 'P' to avoid conflict with downward movement
+
+    if (input == 'P') {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         saveGameState();
-        return;
+        return true;
     }
-    
-    // Process movement using entity system
-    bool moved = movePlayer(player, input, 
-                           [this](int x, int y) { return this->isWalkableAdapter(x, y); },
-                           map_cols, map_rows);
-    
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    bool moved = movePlayer(player, input,
+        [this](int x, int y) { return this->isWalkableAdapter(x, y); },
+        map_cols, map_rows);
+
     if (moved) {
         cout << "Movement successful! New position: (" << player.x << ", " << player.y << ")" << endl;
     } else {
         cout << "Cannot move in that direction! There is an obstacle or invalid direction." << endl;
     }
-}
 
+    return false;
+}
 /**
  * @brief Processes all enemy movements for the current turn
  * 
@@ -492,19 +481,12 @@ void Game::displayGameInfo() {
     cout << "Symbols: P=Player, T=TA, F=Professor, S=Student, #=Wall, .=Empty, E=Exit" << endl;
 }
 
-/**
- * @brief Saves the current game state to a file
- * 
- * Captures all current game data including level, GPA, player state,
- * enemy states, and difficulty settings, then writes them to a
- * save file for later restoration.
- */
 void Game::saveGameState() {
     bool success = saveGame(currentLevel, currentGPA, player, enemies, currentDifficulty);
     if (success) {
         cout << "Game saved successfully!" << endl;
     } else {
-        cout << "Game save failed!" << endl;
+        cout << "Game save failed! Please try again." << endl;
     }
 }
 
