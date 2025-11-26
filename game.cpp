@@ -4,8 +4,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
-#include <limits>  // 添加头文件
-#include <cmath>   // 添加头文件
+#include <limits>
+#include <cmath>
 
 using namespace std;
 
