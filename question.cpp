@@ -19,15 +19,18 @@ string trim(const string& str) {
     if (str.empty()) return "";
     int start = 0;
     int end = str.length() - 1;
-    
+
+    // Find first non-whitespace character from the start
     while (start <= end && (str[start] == ' ' || str[start] == '\t' || str[start] == '\n' || str[start] == '\r')) {
         start++;
     }
-    
+
+    // Find first non-whitespace character from the end
     while (end >= start && (str[end] == ' ' || str[end] == '\t' || str[end] == '\n' || str[end] == '\r')) {
         end--;
     }
-    
+
+    // If string is all whitespace, return empty string
     if (start > end) return "";
     return str.substr(start, end - start + 1);
 }
@@ -35,9 +38,11 @@ string trim(const string& str) {
 void initQsRandom() {
     // Removed srand(time(0)) - only keep one srand in the entire program
     
-    static std::random_device rd;
-    static std::mt19937 g(rd());
+    static std::random_device rd; // Non-deterministic random number generator
 
+    static std::mt19937 g(rd());  // Mersenne Twister random number engine
+    
+    // Shuffle questions for each enemy type to ensure random order
     if (!taQs.empty()) {
         std::shuffle(taQs.begin(), taQs.end(), g);
     }
@@ -59,7 +64,7 @@ void load_All_Qs() {
 }
 
 void load_TA_Qs(const string& filename) {
-    taQs = vector<Qs>();
+    taQs = vector<Qs>(); // Clear existing questions
     
     ifstream file(filename);
     if (file.fail()) {
@@ -69,12 +74,13 @@ void load_TA_Qs(const string& filename) {
     
     string line;
     while (getline(file, line)) {
-        if (line.empty()) continue;
+        if (line.empty()) continue; // Skip empty lines
         
         istringstream iss(line);
         string question, answer;
         double penalty;
-        
+
+        // Parse line using pipe delimiter: Question|Answer|Penalty
         if (getline(iss, question, '|') && getline(iss, answer, '|') && (iss >> penalty)) {
             Qs q;
             q.questionText = trim(question);
@@ -89,7 +95,7 @@ void load_TA_Qs(const string& filename) {
 }
 
 void load_Prof_Qs(const string& filename) {
-    profQs = vector<Qs>();
+    profQs = vector<Qs>(); 
     
     ifstream file(filename);
     if (file.fail()) {
@@ -163,7 +169,7 @@ double ask(char enemyType, const set_difficulty& difficulty) {
             cout << enemyName << ": No questions available. You're lucky this time!" << endl;
             return 0.0;
         }
-        int rd = rand() % taQs.size();
+        int rd = rand() % taQs.size(); // Randomly select a question
         selectedQuestion = taQs[rd];
         basePenalty = selectedQuestion.basePenalty;
         foundQuestion = true;
@@ -174,7 +180,7 @@ double ask(char enemyType, const set_difficulty& difficulty) {
             cout << enemyName << ": No questions available. You're lucky this time!" << endl;
             return 0.0;
         }
-        int rd = rand() % profQs.size();
+        int rd = rand() % profQs.size(); 
         selectedQuestion = profQs[rd];
         basePenalty = selectedQuestion.basePenalty;
         foundQuestion = true;
@@ -205,18 +211,18 @@ double ask(char enemyType, const set_difficulty& difficulty) {
     
     char playerAnswer;
     bool validInput = false;
-    
+
+    // Input validation loop for answer choice
     while (!validInput) {
         cout << "Your answer (enter A/B/C/D): ";
         cin >> playerAnswer;
 
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear input buffer
         
-        playerAnswer = toupper(playerAnswer);
+        playerAnswer = toupper(playerAnswer); // Convert to uppercase for case-insensitive comparison
         
         // Validate input format
-        if (playerAnswer == 'A' || playerAnswer == 'B' || 
-            playerAnswer == 'C' || playerAnswer == 'D') {
+        if (playerAnswer == 'A' || playerAnswer == 'B' || playerAnswer == 'C' || playerAnswer == 'D') {
             validInput = true;
         } else {
             cout << "✗ Invalid input! Please enter A, B, C, or D." << endl;
@@ -224,11 +230,11 @@ double ask(char enemyType, const set_difficulty& difficulty) {
     }
 
     // Evaluate answer
-    char correctChar = toupper(selectedQuestion.answer[0]);
-    
+    char correctChar = toupper(selectedQuestion.answer[0]); // Get first character of answer
+
     if (playerAnswer == correctChar) {
         cout << "✓ Correct! Well done!" << endl;
-        return 0.0;
+        return 0.0; // No penalty for correct answer
     } else {
         double actualPenalty = basePenalty;
         
@@ -244,6 +250,6 @@ double ask(char enemyType, const set_difficulty& difficulty) {
         cout << "✗ Wrong! The correct answer is: " << selectedQuestion.answer << endl;
         cout << "You lost " << actualPenalty << " GPA!" << endl;
         
-        return actualPenalty;
+        return actualPenalty; // Return the calculated penalty
     }
 }
