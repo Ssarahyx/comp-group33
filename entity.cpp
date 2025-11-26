@@ -337,6 +337,7 @@ bool isCollide(const Entity& entity1, const Entity& entity2) {
 // Check if player collides with any enemy
 Entity* checkPlayerCollision(const Entity& player, vector<Entity>& enemies) {
     for (auto& enemy : enemies) {
+        if (!enemy.active) continue;
         if (isCollide(player, enemy)) {
             return &enemy;
         }
