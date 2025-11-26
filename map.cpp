@@ -239,24 +239,25 @@ void load_map(int difficulty, int level) {
     map_data[path_row][path_col] = '.';
 
     for (int row = 1; row < map_rows - 1; ++row) {
-    for (int col = 1; col < map_cols - 1; ++col) {
-        if (safe_route[row][col]) continue;
-        if (row == start_row && col == start_col) continue;
-        if (row == exit_row && col == exit_col) continue;
+        for (int col = 1; col < map_cols - 1; ++col) {
+            if (safe_route[row][col]) continue;
+            if (row == start_row && col == start_col) continue;
+            if (row == exit_row && col == exit_col) continue;
 
-        int r = rand() % 100;
+            int r = rand() % 100;
 
-        if (r < wall_percent) {
-            map_data[row][col] = '#';
-        } else {
-            int enemy_roll = rand() % 100;
-            if (enemy_roll < enemy_percent) {
-                int type = rand() % 3;
-                if (type == 0)      map_data[row][col] = 'T';
-                else if (type == 1) map_data[row][col] = 'F';
-                else                map_data[row][col] = 'S';
+            if (r < wall_percent) {
+                map_data[row][col] = '#';
+            } else {
+                int enemy_roll = rand() % 100;
+                if (enemy_roll < enemy_percent) {
+                    int type = rand() % 3;
+                    if (type == 0)      map_data[row][col] = 'T';
+                    else if (type == 1) map_data[row][col] = 'F';
+                    else                map_data[row][col] = 'S';
 
-                enemy_count++;
+                    enemy_count++;
+                }
             }
         }
     }
