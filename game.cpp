@@ -21,7 +21,7 @@ Game::Game() {
     gameRunning = true;
     currentLevel = 1;
     currentGPA = 0.0;
-    gameConfig = {2, 0, 0, 0}; // Default to NORMAL difficulty (level 2)
+    gameConfig = {2, 0, 0, 0, 0}; // Default to NORMAL difficulty (level 2)
     currentDifficulty = normal(); // Set default difficulty settings
 }
 
