@@ -288,30 +288,16 @@ void Game::initializeEnemiesFromMap() {
  * player turns, enemy turns, and checking game state until
  * the level is completed or the game ends.
  */
-
 void Game::gameLoop() {
     while (currentState == GameState::PLAYING) {
         displayGameInfo();
-
-        {
-            Entity* collidedEnemy = checkPlayerCollision(player, enemies);
-            if (collidedEnemy != nullptr) {
-                handleQuestion(collidedEnemy->type);
-                
-                if (currentGPA <= 0) {
-                    currentState = GameState::GAME_OVER;
-                    continue;
-                }
-                continue;
-            }
-        }
-
+        
         bool playerMoved = playerTurn();
 
         if (!playerMoved) {
             continue;
         }
-        
+
         if (at_exit_position(player.y, player.x)) {
             cout << "\nCongratulations! You found the exit!" << endl;
             currentState = GameState::LEVEL_COMPLETE;
@@ -322,7 +308,7 @@ void Game::gameLoop() {
             Entity* collidedEnemy = checkPlayerCollision(player, enemies);
             if (collidedEnemy != nullptr) {
                 handleQuestion(collidedEnemy->type);
-                
+
                 if (currentGPA <= 0) {
                     currentState = GameState::GAME_OVER;
                     continue;
@@ -337,7 +323,7 @@ void Game::gameLoop() {
             Entity* collidedEnemy = checkPlayerCollision(player, enemies);
             if (collidedEnemy != nullptr) {
                 handleQuestion(collidedEnemy->type);
-                
+
                 if (currentGPA <= 0) {
                     currentState = GameState::GAME_OVER;
                     continue;
