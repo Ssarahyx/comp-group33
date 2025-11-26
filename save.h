@@ -20,6 +20,11 @@ struct Entity {
     char type;
     bool active;
     int id;
+    int chaseProbability;
+    int detectionRange;
+    int movementStrategy;
+    int predictiveTracking;
+    int distractionFactor;
 };
 
 // Game difficulty settings
