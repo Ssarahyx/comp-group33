@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <algorithm>
 
 using namespace std;
 
@@ -18,42 +19,149 @@ Entity initPlayer(int startX, int startY) {
     return player;
 }
 
-// Initialize enemies based on difficulty
+// Enhanced enemy initialization with behavior modifiers
 vector<Entity> initEnemies(const GameConfig& config) {
     vector<Entity> enemies;
     int nextId = 1;
     
-    // Create TAs
+    // Create TAs with enhanced behavior profiles
     for (int i = 0; i < config.taCount; i++) {
         Entity ta;
         ta.type = 'T';
         ta.active = true;
         ta.id = nextId++;
+        
+        // TA behavior modifiers based on difficulty and stage
+        ta.chaseProbability = calculateTAChaseProbability(config.level, config.stage, i);
+        ta.detectionRange = calculateTADetectionRange(config.level, config.stage);
+        ta.movementStrategy = calculateTAMovementStrategy(config.level, config.stage, i);
+        
         enemies.push_back(ta);
     }
     
-    // Create Professors
+    // Create Professors with advanced tracking capabilities
     for (int i = 0; i < config.professorCount; i++) {
         Entity professor;
         professor.type = 'F';
         professor.active = true;
         professor.id = nextId++;
+        
+        // Professor behavior modifiers
+        professor.chaseProbability = calculateProfessorChaseProbability(config.level, config.stage, i);
+        professor.detectionRange = calculateProfessorDetectionRange(config.level, config.stage);
+        professor.movementStrategy = calculateProfessorMovementStrategy(config.level, config.stage, i);
+        professor.predictiveTracking = calculateProfessorPredictiveAbility(config.level, config.stage);
+        
         enemies.push_back(professor);
     }
     
-    // Create Students
+    // Create Students with varied movement patterns
     for (int i = 0; i < config.studentCount; i++) {
         Entity student;
         student.type = 'S';
         student.active = true;
         student.id = nextId++;
+        
+        // Student behavior modifiers
+        student.chaseProbability = calculateStudentChaseProbability(config.level, config.stage, i);
+        student.movementStrategy = calculateStudentMovementStrategy(config.level, config.stage, i);
+        student.distractionFactor = calculateStudentDistraction(config.level, config.stage);
+        
         enemies.push_back(student);
     }
     
+    cout << "Enhanced enemies initialized with complex behaviors" << endl;
     return enemies;
 }
 
-// Player movement (using isWalkable detection from Module B)
+// Complex probability calculations for different enemy types
+
+int calculateTAChaseProbability(int level, int stage, int enemyIndex) {
+    // Base probability increases with difficulty
+    int baseProbability = 60;
+    
+    // Level modifiers
+    if (level == 1) baseProbability += 5;  // Easy
+    else if (level == 2) baseProbability += 15; // Normal
+    else baseProbability += 25; // Hard
+    
+    // Stage progression
+    baseProbability += stage * 3;
+    
+    // Individual variation
+    baseProbability += (enemyIndex % 3) * 2;
+    
+    return min(85, baseProbability);
+}
+
+int calculateTADetectionRange(int level, int stage) {
+    return 3 + level + (stage > 1 ? 1 : 0);
+}
+
+int calculateTAMovementStrategy(int level, int stage, int enemyIndex) {
+    // 0: Standard chase, 1: Strategic positioning, 2: Aggressive pursuit
+    return (level + stage + enemyIndex) % 3;
+}
+
+int calculateProfessorChaseProbability(int level, int stage, int enemyIndex) {
+    // Professors are highly persistent
+    int baseProbability = 75;
+    
+    // Significant level scaling
+    if (level == 1) baseProbability += 10;
+    else if (level == 2) baseProbability += 20;
+    else baseProbability += 30;
+    
+    // Stage progression makes professors more determined
+    baseProbability += stage * 5;
+    
+    // Some professors are exceptionally persistent
+    if (enemyIndex == 0) baseProbability += 5;
+    
+    return min(95, baseProbability);
+}
+
+int calculateProfessorDetectionRange(int level, int stage) {
+    return 4 + level * 2;
+}
+
+int calculateProfessorMovementStrategy(int level, int stage, int enemyIndex) {
+    // 0: Direct pursuit, 1: Flanking, 2: Area control
+    return (level * 2 + stage) % 3;
+}
+
+int calculateProfessorPredictiveAbility(int level, int stage) {
+    // Professors can predict player movement in higher difficulties
+    return level > 1 && stage > 1 ? 1 : 0;
+}
+
+int calculateStudentChaseProbability(int level, int stage, int enemyIndex) {
+    // Students are less likely to chase
+    int baseProbability = 20;
+    
+    // Mild level scaling
+    baseProbability += level * 5;
+    
+    // Stage progression
+    baseProbability += stage * 2;
+    
+    // Some students are more curious
+    baseProbability += (enemyIndex % 2) * 10;
+    
+    return min(50, baseProbability);
+}
+
+int calculateStudentMovementStrategy(int level, int stage, int enemyIndex) {
+    // 0: Random wander, 1: Group tendency, 2: Avoidance
+    return (level + stage * 2 + enemyIndex) % 3;
+}
+
+int calculateStudentDistraction(int level, int stage) {
+    // Students get distracted, less so in higher stages
+    return 30 - (stage * 3);
+}
+
+// Enhanced player movement
 bool movePlayer(Entity& player, char direction, 
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
@@ -61,24 +169,23 @@ bool movePlayer(Entity& player, char direction,
     int newX = player.x;
     int newY = player.y;
     
-    // Calculate new position based on input
     switch (direction) {
-        case 'w': case 'W': newY--; break;  // Up
-        case 's': case 'S': newY++; break;  // Down
-        case 'a': case 'A': newX--; break;  // Left
-        case 'd': case 'D': newX++; break;  // Right
+        case 'w': case 'W': newY--; break;
+        case 's': case 'S': newY++; break;
+        case 'a': case 'A': newX--; break;
+        case 'd': case 'D': newX++; break;
         default: 
             cout << "Invalid direction! Use W/A/S/D." << endl;
-            return false;  // Invalid input
+            return false;
     }
     
-    // Check boundaries
+    // Boundary checking
     if (newX < 0 || newX >= mapWidth || newY < 0 || newY >= mapHeight) {
         cout << "Cannot move outside map boundaries!" << endl;
         return false;
     }
     
-    // Use Module B's isWalkable to check if position is walkable
+    // Walkability check
     if (isWalkable(newX, newY)) {
         player.x = newX;
         player.y = newY;
@@ -89,7 +196,7 @@ bool movePlayer(Entity& player, char direction,
     }
 }
 
-// Enemy movement
+// Complex enemy movement with varied behaviors
 void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 function<bool(int, int)> isWalkable,
                 int mapWidth, int mapHeight) {
@@ -99,43 +206,76 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
         
         int newX = enemy.x;
         int newY = enemy.y;
+        bool shouldMove = false;
         
-        // Different behaviors based on enemy type
+        // Calculate distance to player
+        int dx = player.x - enemy.x;
+        int dy = player.y - enemy.y;
+        int distance = abs(dx) + abs(dy);
+        
+        // Different behaviors based on enemy type and strategy
         switch (enemy.type) {
-            case 'T': // TA - 65% chance to chase player, 35% random movement
-              {
-                    int randomChoice = rand() % 100;
-                    
-                    if (randomChoice < 65) {  // 65% chance to chase player
-                        // Calculate direction to player
-                        int dx = player.x - enemy.x;
-                        int dy = player.y - enemy.y;
-                        
-                        // Prioritize moving in direction that reduces distance the most
-                        if (abs(dx) > abs(dy)) {
-                            newX += (dx > 0) ? 1 : -1;
-                        } else {
-                            newY += (dy > 0) ? 1 : -1;
-                        }
-                    } else {  // 35% chance for random movement
-                        int direction = rand() % 4;
-                        switch (direction) {
-                            case 0: newY--; break;  // Up
-                            case 1: newY++; break;  // Down
-                            case 2: newX--; break;  // Left
-                            case 3: newX++; break;  // Right
-                        }
-                    }
+            case 'T': // TA with complex chasing logic
+                shouldMove = moveTA(enemy, player, newX, newY, distance);
+                break;
+                
+            case 'F': // Professor with advanced tracking
+                shouldMove = moveProfessor(enemy, player, newX, newY, distance);
+                break;
+                
+            case 'S': // Student with varied movement
+                shouldMove = moveStudent(enemy, player, newX, newY, distance);
+                break;
+        }
+        
+        // Validate and apply movement
+        if (shouldMove && newX >= 0 && newX < mapWidth && 
+            newY >= 0 && newY < mapHeight && 
+            isWalkable(newX, newY)) {
+            
+            // Check for other enemies in target position
+            bool positionOccupied = false;
+            for (const auto& other : enemies) {
+                if (&other != &enemy && other.active && 
+                    other.x == newX && other.y == newY) {
+                    positionOccupied = true;
+                    break;
+                }
+            }
+            
+            if (!positionOccupied) {
+                enemy.x = newX;
+                enemy.y = newY;
+            }
+        }
+    }
+}
+
+// TA movement with strategic behavior
+bool moveTA(Entity& ta, const Entity& player, int& newX, int& newY, int distance) {
+    int randomChoice = rand() % 100;
+    int dx = player.x - ta.x;
+    int dy = player.y - ta.y;
+    
+    // Only chase if player is within detection range
+    if (distance <= ta.detectionRange && randomChoice < ta.chaseProbability) {
+        // Strategic chasing based on movement strategy
+        switch (ta.movementStrategy) {
+            case 0: // Standard chase
+                if (abs(dx) > abs(dy)) {
+                    newX += (dx > 0) ? 1 : -1;
+                } else {
+                    newY += (dy > 0) ? 1 : -1;
                 }
                 break;
                 
-            case 'F':  // Professor - 100% chase player
-                {
-                    // Calculate direction to player
-                    int dx = player.x - enemy.x;
-                    int dy = player.y - enemy.y;
-                    
-                    // Prioritize moving in direction that reduces distance the most
+            case 1: // Strategic positioning - try to cut off player
+                if (distance > 2) {
+                    // Move toward player but with offset
+                    if (dx != 0) newX += (dx > 0) ? 1 : -1;
+                    if (dy != 0 && rand() % 2 == 0) newY += (dy > 0) ? 1 : -1;
+                } else {
+                    // Close range - direct approach
                     if (abs(dx) > abs(dy)) {
                         newX += (dx > 0) ? 1 : -1;
                     } else {
@@ -144,40 +284,155 @@ void moveEnemies(vector<Entity>& enemies, const Entity& player,
                 }
                 break;
                 
-            case 'S':  // Student - Random movement only (no chasing)
-                {
-                    int direction = rand() % 4;
-                    switch (direction) {
-                        case 0: newY--; break;  // Up
-                        case 1: newY++; break;  // Down
-                        case 2: newX--; break;  // Left
-                        case 3: newX++; break;  // Right
+            case 2: // Aggressive pursuit - always close distance
+                if (dx != 0) newX += (dx > 0) ? 1 : -1;
+                if (dy != 0) newY += (dy > 0) ? 1 : -1;
+                break;
+        }
+        return true;
+    } else {
+        // Random movement when not chasing
+        int direction = rand() % 4;
+        switch (direction) {
+            case 0: newY--; break;
+            case 1: newY++; break;
+            case 2: newX--; break;
+            case 3: newX++; break;
+        }
+        return true;
+    }
+}
+
+// Professor movement with predictive tracking
+bool moveProfessor(Entity& professor, const Entity& player, int& newX, int& newY, int distance) {
+    int randomChoice = rand() % 100;
+    int dx = player.x - professor.x;
+    int dy = player.y - professor.y;
+    
+    // Professors are highly persistent chasers
+    if (distance <= professor.detectionRange && randomChoice < professor.chaseProbability) {
+        switch (professor.movementStrategy) {
+            case 0: // Direct pursuit
+                if (abs(dx) > abs(dy)) {
+                    newX += (dx > 0) ? 1 : -1;
+                } else {
+                    newY += (dy > 0) ? 1 : -1;
+                }
+                break;
+                
+            case 1: // Flanking maneuver
+                if (distance > 3) {
+                    // Move diagonally toward player
+                    if (dx != 0) newX += (dx > 0) ? 1 : -1;
+                    if (dy != 0) newY += (dy > 0) ? 1 : -1;
+                } else {
+                    // Close range direct approach
+                    if (abs(dx) > abs(dy)) {
+                        newX += (dx > 0) ? 1 : -1;
+                    } else {
+                        newY += (dy > 0) ? 1 : -1;
+                    }
+                }
+                break;
+                
+            case 2: // Area control - try to maintain optimal distance
+                if (distance < 2) {
+                    // Too close, maintain distance
+                    if (abs(dx) > abs(dy)) {
+                        newX += (dx > 0) ? -1 : 1;
+                    } else {
+                        newY += (dy > 0) ? -1 : 1;
+                    }
+                } else {
+                    // Move toward player
+                    if (abs(dx) > abs(dy)) {
+                        newX += (dx > 0) ? 1 : -1;
+                    } else {
+                        newY += (dy > 0) ? 1 : -1;
                     }
                 }
                 break;
         }
+        return true;
+    }
+    return false; // Professors rarely move randomly
+}
+
+// Student movement with social behaviors
+bool moveStudent(Entity& student, const Entity& player, int& newX, int& newY, int distance) {
+    int randomChoice = rand() % 100;
+    
+    // Students occasionally chase, but mostly wander
+    if (distance <= 3 && randomChoice < student.chaseProbability) {
+        int dx = player.x - student.x;
+        int dy = player.y - student.y;
         
-        // Enhanced position validation - ALLOW moving into player position
-        if (newX >= 0 && newX < mapWidth && 
-            newY >= 0 && newY < mapHeight && 
-            isWalkable(newX, newY)) {
-            
-            // Allow enemies to move into player position (this will trigger collision)
-            // Only check if position is occupied by other enemies, not player
-            bool positionOccupiedByOtherEnemy = false;
-            for (const auto& otherEnemy : enemies) {
-                if (&otherEnemy != &enemy && otherEnemy.active && 
-                    otherEnemy.x == newX && otherEnemy.y == newY) {
-                    positionOccupiedByOtherEnemy = true;
-                    break;
-                }
-            }
-            
-            if (!positionOccupiedByOtherEnemy) {
-                enemy.x = newX;
-                enemy.y = newY;
-            }
+        // Simple chase logic for students
+        if (abs(dx) > abs(dy)) {
+            newX += (dx > 0) ? 1 : -1;
+        } else {
+            newY += (dy > 0) ? 1 : -1;
         }
+        return true;
+    } else {
+        // Random movement with strategy variations
+        switch (student.movementStrategy) {
+            case 0: // Pure random
+                {
+                    int direction = rand() % 4;
+                    switch (direction) {
+                        case 0: newY--; break;
+                        case 1: newY++; break;
+                        case 2: newX--; break;
+                        case 3: newX++; break;
+                    }
+                }
+                break;
+                
+            case 1: // Small cluster movement - tendency to stay in groups
+                if (rand() % 100 < student.distractionFactor) {
+                    // Occasionally make a larger move
+                    int direction = rand() % 4;
+                    int steps = 1 + (rand() % 2);
+                    switch (direction) {
+                        case 0: newY -= steps; break;
+                        case 1: newY += steps; break;
+                        case 2: newX -= steps; break;
+                        case 3: newX += steps; break;
+                    }
+                } else {
+                    // Small movements
+                    int direction = rand() % 4;
+                    switch (direction) {
+                        case 0: newY--; break;
+                        case 1: newY++; break;
+                        case 2: newX--; break;
+                        case 3: newX++; break;
+                    }
+                }
+                break;
+                
+            case 2: // Avoidance behavior - tends to move away from player
+                if (distance < 4) {
+                    int dx = player.x - student.x;
+                    int dy = player.y - student.y;
+                    if (abs(dx) > abs(dy)) {
+                        newX += (dx > 0) ? -1 : 1;
+                    } else {
+                        newY += (dy > 0) ? -1 : 1;
+                    }
+                } else {
+                    int direction = rand() % 4;
+                    switch (direction) {
+                        case 0: newY--; break;
+                        case 1: newY++; break;
+                        case 2: newX--; break;
+                        case 3: newX++; break;
+                    }
+                }
+                break;
+        }
+        return true;
     }
 }
 
