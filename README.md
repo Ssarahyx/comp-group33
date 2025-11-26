@@ -145,6 +145,7 @@ hku_gpa_escape
 
 ### ▶ Run the Game
 You can run the game in two different ways.
+
 **Method 1**
 Build first, then run manually
 ```bash
