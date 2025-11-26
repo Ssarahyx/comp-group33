@@ -158,4 +158,9 @@ Compile (if needed) and run in a single step
 make run
 ```
 
+## 9️⃣ Quick Demo
+
+https://github.com/user-attachments/assets/a0f0e10d-52dd-4b99-93e4-c54d4af0c618
+
+
 
