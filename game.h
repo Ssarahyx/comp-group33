@@ -88,10 +88,11 @@ private:
      */
     void gameLoop();
     
-    /**
-     * @brief Processes player's turn including movement and actions
-     */
-    void playerTurn();
+   /**
+    * @brief Processes the player's turn including movement and actions
+    * @return true if player saved the game, false if player moved
+    */
+    bool playerTurn();    
     
     /**
      * @brief Processes all enemy movements and AI behavior
