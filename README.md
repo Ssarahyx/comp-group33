@@ -40,7 +40,7 @@ Randomly generated maps for replayability
 ## 4️⃣ HOW TO PLAY
 
 ### 🎯 BASIC CONTROLS
-**W/A/S/D** or **↑/↓/←/→** - Move character 🎮
+**W/A/S/D** - Move character 🎮
 
 **P** - Save game progress 💾
 
