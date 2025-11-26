@@ -45,6 +45,9 @@ void deactivateEnemy(Entity& enemy);
 // Get readable name for entity type
 string getEntityTypeName(char type);
 
+// Check if position is valid for enemy movement
+bool isValidEnemyPosition(int x, int y, function<bool(int, int)> isWalkable);
+
 // Enemy movement helper functions
 bool moveTA(Entity& ta, const Entity& player, int& newX, int& newY, int distance);
 bool moveProfessor(Entity& professor, const Entity& player, int& newX, int& newY, int distance);
