@@ -42,24 +42,38 @@ static void clear_map() {
 static void get_map_parameters(int difficulty, int level,
                                int& rows, int& cols,
                                int& wall_percent, int& enemy_percent) {
+    int base_rows, base_cols;
+    
     if (difficulty == 1) {
-        rows = 4;
-        cols = 8;
-        wall_percent  = 4 + (level - 1);
-        enemy_percent = 25 + (level - 1) * 4;
+        base_rows = 6;
+        base_cols = 10;
+        wall_percent  = 4;
+        enemy_percent = 18;
     }
-    else if (difficulty == 2) {
-        rows = 8;
-        cols = 15;
-        wall_percent  = 8 + (level - 1);
-        enemy_percent = 22 + (level - 1) * 4;
+    else if (difficulty == 2){
+        base_rows = 8;
+        base_cols = 14;
+        wall_percent  = 7;
+        enemy_percent = 20;
     }
     else {
-        rows = 10;
-        cols = 20;
-        wall_percent  = 10 + (level - 1);
-        enemy_percent = 25 + (level - 1) * 5;
+        base_rows = 10;
+        base_cols = 18;
+        wall_percent  = 9;
+        enemy_percent = 22;
     }
+
+    int level_increase_rows = 2;
+    int level_increase_cols = 3;
+
+    rows = base_rows + (level - 1) * level_increase_rows;
+    cols = base_cols + (level - 1) * level_increase_cols;
+
+    wall_percent  += (level - 1) * 2;
+    enemy_percent += (level - 1) * 4;
+
+    if (wall_percent > 35)  wall_percent = 35;
+    if (enemy_percent > 45) enemy_percent = 45;
 }
 
 //add_border_walls function sets the outer border cells of the map to walls using "#".
@@ -165,6 +179,7 @@ void load_map(int difficulty, int level) {
     get_map_parameters(difficulty, level, rows, cols, wall_percent, enemy_percent);
 
     create_map_memory(rows, cols);
+    int enemy_count = 0;
 
     for (int row = 0; row < map_rows; ++row) {
         for (int col = 0; col < map_cols; ++col) {
@@ -224,24 +239,54 @@ void load_map(int difficulty, int level) {
     map_data[path_row][path_col] = '.';
 
     for (int row = 1; row < map_rows - 1; ++row) {
-        for (int col = 1; col < map_cols - 1; ++col) {
-            if (safe_route[row][col]) continue;
-            if (row == start_row && col == start_col) continue;
-            if (row == exit_row && col == exit_col) continue;
+    for (int col = 1; col < map_cols - 1; ++col) {
+        if (safe_route[row][col]) continue;
+        if (row == start_row && col == start_col) continue;
+        if (row == exit_row && col == exit_col) continue;
 
-            int r = rand() % 100;
+        int r = rand() % 100;
 
-            if (r < wall_percent) {
-                map_data[row][col] = '#';
-            } else {
-                int enemy_roll = rand() % 100;
-                if (enemy_roll < enemy_percent) {
-                    int type = rand() % 3;
-                    if (type == 0)      map_data[row][col] = 'T';
-                    else if (type == 1) map_data[row][col] = 'F';
-                    else                map_data[row][col] = 'S';
+        if (r < wall_percent) {
+            map_data[row][col] = '#';
+        } else {
+            int enemy_roll = rand() % 100;
+            if (enemy_roll < enemy_percent) {
+                int type = rand() % 3;
+                if (type == 0)      map_data[row][col] = 'T';
+                else if (type == 1) map_data[row][col] = 'F';
+                else                map_data[row][col] = 'S';
+
+                enemy_count++;
+            }
+        }
+    }
+
+    if (enemy_count == 0) {
+        vector<pair<int,int>> candidates;
+
+        for (int row = 1; row < map_rows - 1; ++row) {
+            for (int col = 1; col < map_cols - 1; ++col) {
+                if (row == start_row && col == start_col) continue;
+                if (row == exit_row && col == exit_col) continue;
+
+                if (map_data[row][col] == '.') {
+                    candidates.push_back({row, col});
                 }
             }
+        }
+
+        if (!candidates.empty()) {
+            auto chosen = candidates[rand() % candidates.size()];
+            int er = chosen.first;
+            int ec = chosen.second;
+
+            int type = rand() % 3;
+            if (type == 0)      map_data[er][ec] = 'T';
+            else if (type == 1) map_data[er][ec] = 'F';
+            else                map_data[er][ec] = 'S';
+
+            enemy_count = 1;
+            // cout << "[DEBUG] forced spawn one enemy at (" << er << "," << ec << ")\n";
         }
     }
 }
