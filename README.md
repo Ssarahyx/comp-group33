@@ -46,13 +46,6 @@ Randomly generated maps for replayability
 
 **Enter** - Select menu options ✅
 
-### 💡 PRO TIPS
-Plan your route to avoid unnecessary enemy encounters 🗺️
-
-Save frequently to protect your GPA progress 💾
-
-Different enemies require different strategies 🎯
-
 ## 5️⃣ ACADEMIC CHALLENGES
 
 ### 👨‍🏫 TA ENEMIES (T)
@@ -116,22 +109,48 @@ Configuration Files - Game settings management ⚙️
 Save Files - Automatic progress backup 💾
 
 
-## 7️⃣ QUICK START
-Select difficulty level 🎚️
+## 7️⃣ CODING REQUIREMENTS IMPLEMENTATION
+### 🎲 Requirement 1: Generation of Random Events
+**Supported Game Features:**
+- Dynamic Map Generation - Creates unique map layouts for each playthrough
+- Random Enemy Placement - Enemies spawn in different locations each game
+- Question Randomization - Questions selected randomly from question pools
+- Enemy AI Behavior - TAs have 65% chance to chase player, 35% random movement
 
-Navigate through the map using WASD keys 🗺️
+### 🗃️ Requirement 2: Data Structures for Storing Data
+**Supported Game Features:**
+- GameState Class - Stores game state, player position, GPA data
+- Entity System - Manages data structures for players and various enemies
+- Map Grid - Uses 2D array structures to store map layouts
+- Question Database - Stores and manages C++ programming questions
 
-Avoid or confront enemies when encountered 👥
+### 💾 Requirement 3: Dynamic Memory Management
+**Supported Game Features:**
+- Dynamic Map Allocation - Creates different sized maps based on difficulty level
+- Enemy Object Management - Runtime dynamic creation and management of enemy entities
+- Game State Management - Dynamic allocation of game resources
+- Question System - Dynamic loading and management of question data
 
-Answer questions correctly to deactivate enemies ✅
+### 📁 Requirement 4: File Input/Output
+**Supported Game Features:**
+- Save/Load System - Saves game progress to files and restores from files
+- Question Database Reading - Loads C++ programming questions from external files
+- Configuration Files - Manages game settings and difficulty parameters
+- Automatic Backup - Ensures game progress is not lost
 
-Reach the exit (E) to complete each level 🚪
+### 📄 Requirement 5: Program Codes in Multiple Files
+**Supported Game Features:**
+- Modular Architecture - Separates game logic into different .h and .cpp files
+- Maintainability - Clear code organization for easier debugging and extension
+- Team Collaboration - Allows team members to develop different modules in parallel
+- Code Reusability - Independent components can be reused across different parts
+  
+## 8️⃣ EXTERNAL LIBRARIES
 
-Save your progress regularly with P key 💾
+### Non-Standard Libraries
+**None** - This project uses only C++ standard libraries, requiring no additional dependencies, ensuring direct compilation in the grader's environment.
 
-Complete all 3 levels to win the game! 🏆
-
-## 8️⃣ INSTALLATION
+## 9️⃣ INSTALLATION
 
 ### 🔧 Build the Game
 ```bash
